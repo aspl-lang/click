@@ -1,0 +1,29 @@
+import graphics
+import math.geometry
+
+import click.layouting
+import click.events
+
+[abstract]
+class _CompilerBugWorkaround { // TODO: Get rid of this; the compiler currently does not generate the "_invoke" wrappers for callbacks that are never actually instantiated anywhere
+
+    property callback<MouseDownEvent, EventContext, Region> _1 = callback(MouseDownEvent event, EventContext context, Region canvas){}
+    property callback<MouseMoveEvent, EventContext, Region> _2 = callback(MouseMoveEvent event, EventContext context, Region canvas){}
+    property callback<MouseUpEvent, EventContext, Region> _3 = callback(MouseUpEvent event, EventContext context, Region canvas){}
+    property callback<MouseWheelEvent, EventContext, Region> _4 = callback(MouseWheelEvent event, EventContext context, Region canvas){}
+    property callback<TouchDownEvent, EventContext, Region> _5 = callback(TouchDownEvent event, EventContext context, Region canvas){}
+    property callback<TouchMoveEvent, EventContext, Region> _6 = callback(TouchMoveEvent event, EventContext context, Region canvas){}
+    property callback<TouchUpEvent, EventContext, Region> _7 = callback(TouchUpEvent event, EventContext context, Region canvas){}
+    property callback<TouchCancelEvent, EventContext, Region> _8 = callback(TouchCancelEvent event, EventContext context, Region canvas){}
+    property callback<UnifiedPointerDownEvent, EventContext, Region> _9 = callback(UnifiedPointerDownEvent event, EventContext context, Region region){}
+    property callback<UnifiedPointerMoveEvent, EventContext, Region> _10 = callback(UnifiedPointerMoveEvent event, EventContext context, Region region){}
+    property callback<UnifiedPointerUpEvent, EventContext, Region> _11 = callback(UnifiedPointerUpEvent event, EventContext context, Region region){}
+    property callback<UnifiedClickEvent, EventContext, Region> _12 = callback(UnifiedClickEvent event, EventContext context, Region region){}
+    property callback<UnifiedPointerCancelEvent, EventContext, Region> _13 = callback(UnifiedPointerCancelEvent event, EventContext context, Region region){}
+    property callback<KeyDownEvent, EventContext, Region> _14 = callback(KeyDownEvent event, EventContext context, Region canvas){}
+    property callback<KeyUpEvent, EventContext, Region> _15 = callback(KeyUpEvent event, EventContext context, Region canvas){}
+    property callback<KeyPressEvent, EventContext, Region> _16 = callback(KeyPressEvent event, EventContext context, Region canvas){}
+    property callback<bool> _17 = callback(bool active){}
+    property callback<float> _18 = callback(float value){}
+
+}

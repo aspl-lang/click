@@ -1,0 +1,21 @@
+[public]
+class Constraints {
+
+    [readpublic]
+    property float minWidth
+    [readpublic]
+    property float minHeight
+    [readpublic]
+    property float maxWidth
+    [readpublic]
+    property float maxHeight
+
+    [public]
+    method construct(float minWidth, float minHeight, float maxWidth, float maxHeight){
+        this.minWidth = minWidth
+        this.minHeight = minHeight
+        this.maxWidth = maxWidth
+        this.maxHeight = maxHeight
+    }
+
+}

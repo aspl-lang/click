@@ -1,0 +1,19 @@
+import graphics
+import math.geometry
+
+[public]
+class MouseWheelEvent extends MouseEvent {
+
+    [readpublic]
+    property float deltaX
+    [readpublic]
+    property float deltaY
+
+    [public]
+    method construct(Point position, float deltaX, float deltaY){
+        parent(MouseEvent).construct(position)
+        this.deltaX = deltaX
+        this.deltaY = deltaY
+    }
+
+}

@@ -1,0 +1,12 @@
+[public]
+class LooseAxisSizing extends AxisSizing {
+
+    [readpublic]
+    property float min // TODO: Is this currently even used/considered anywhere?
+
+    [public]
+    method construct(float min = 0){
+        this.min = min
+    }
+
+}

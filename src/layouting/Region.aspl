@@ -1,0 +1,33 @@
+import math.geometry
+
+[public]
+class Region {
+
+    [readpublic]
+    property float x
+    [readpublic]
+    property float y
+    [readpublic]
+    property float width
+    [readpublic]
+    property float height
+
+    [public]
+    method construct(float x, float y, float width, float height){
+        this.x = x
+        this.y = y
+        this.width = width
+        this.height = height
+    }
+
+    [public]
+    method containsPointXY(float x, float y) returns bool{
+        return x >= this.x && y >= this.y && x < (this.x + this.width) && y < (this.y + this.height)
+    }
+
+    [public]
+    method containsPoint(Point point) returns bool{
+        return containsPointXY(point.x, point.y)
+    }
+
+}

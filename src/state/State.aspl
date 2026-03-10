@@ -1,0 +1,59 @@
+import click.widgets
+
+// TODO: Type this whole class generically when ASPL supports that
+[public]
+class State {
+
+    property any value
+    [readpublic]
+    property bool dirty
+    [readpublic]
+    property bool halfClean
+
+    [public]
+    method construct(any initial){
+        this.value = initial
+    }
+
+    [public]
+    method get(Stateful? widget) returns any{
+        $if debug{
+            if(widget != null && !widget?!.stateSubscriptions.containsKey(this)){
+                panic("Trying to access an unsubscribed state")
+            }
+        }
+        return this.value
+    }
+
+    [public]
+    method set(Widget? widget, any value){
+        if(this.value != value){
+            this.value = value
+            markAsDirty()
+        }
+    }
+
+    [public]
+    method update(Widget? widget, callback<any> cb){
+        cb.(this.value)
+        markAsDirty()
+    }
+
+    [public]
+    method markAsDirty(){
+        this.dirty = true
+        this.halfClean = false
+    }
+
+    [public]
+    method markAsHalfClean(){
+        this.halfClean = true
+    }
+
+    [public]
+    method markAsClean(){
+        this.dirty = false
+        this.halfClean = false
+    }
+
+}

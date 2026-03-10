@@ -1,0 +1,4 @@
+import click
+
+var window = new AppWindow("[Click Example] Calculator", 300, 600, new Root())
+window.show()

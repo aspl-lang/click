@@ -1,0 +1,8 @@
+[public]
+[abstract]
+class Event {
+
+    [public]
+    property bool dispatchedToReceiver
+
+}

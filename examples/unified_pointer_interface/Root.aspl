@@ -1,0 +1,75 @@
+import graphics
+
+import click.widgets
+import click.layouting
+import click.state
+
+class Root extends CompositeWidget, Stateful {
+
+    property State canvasState = new State(null) // The actual initial value is assigned in the build() method.
+
+    [public]
+    method construct(){
+        parent(CompositeWidget).construct()
+
+        subscribeState(canvasState)
+    }
+
+    method build(BuildContext context) returns Widget{
+        if(canvasState.get(this) == null){
+            initCanvas(context)
+        }elseif(RegularCanvas(canvasState.get(this)).width != int((context.fullWidth * 0.75 - 2 * 15) * context.v2pScale) || RegularCanvas(canvasState.get(this)).height != int((context.fullHeight - 2 * 15) * context.v2pScale)){
+            initCanvas(context)
+        }
+
+        return new Row(
+            children = list<Widget>[
+                new DrawingCanvas(canvasState, context.v2pScale),
+                new Column(
+                    children = list<Widget>[
+                        new TextButton(
+                            text = "Clear",
+                            font = Font:default.withSize(FontSize:px(30)),
+                            textColor = Color:fromRGB(0, 0, 0),
+                            backgroundColor = Color:fromRGB(140, 163, 230),
+                            borderColor = Color:fromRGB(0, 0, 0),
+                            padding = Padding:all(15),
+                            cornerRadius = 15,
+                            onClick = callback(){
+                                canvasState.set(this, null)
+                            }
+                        ),
+                        new TextButton(
+                            text = "Save",
+                            font = Font:default.withSize(FontSize:px(30)),
+                            textColor = Color:fromRGB(0, 0, 0),
+                            backgroundColor = Color:fromRGB(140, 163, 230),
+                            borderColor = Color:fromRGB(0, 0, 0),
+                            padding = Padding:all(15),
+                            cornerRadius = 15,
+                            onClick = callback(){
+                                RegularCanvas(canvasState.get(this)).save("canvas.png")
+                            }
+                        )
+                    ],
+                    color = Color:fromRGB(197, 218, 255),
+                    sizing = Sizing:ll(),
+                    mainAxisAlignment = MainAxisAlignment.SpaceEvenly,
+                    crossAxisAlignment = CrossAxisAlignment.Center
+                )
+            ],
+            color = Color:fromRGB(138, 36, 75),
+            padding = Padding:all(15),
+            childGap = 10,
+            mainAxisAlignment = MainAxisAlignment.Start
+        )
+    }
+
+    method initCanvas(BuildContext context){
+        canvasState.set(this, new RegularCanvas(int((context.fullWidth * 0.75 - 2 * 15) * context.v2pScale), int((context.fullHeight - 2 * 15) * context.v2pScale)))
+        canvasState.update(this, callback(any canvas){
+            RegularCanvas(canvas).fill(Color:fromRGB(173, 235, 179))
+        })
+    }
+
+}

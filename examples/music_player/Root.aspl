@@ -1,0 +1,119 @@
+import graphics
+import math.geometry
+
+import click.widgets
+import click.layouting
+import click.drawing
+
+class Root extends CompositeWidget {
+
+    // TODO: Actually give this music player some functionality?
+
+    property string SONG_NAME = "Moonlight Sonata"
+    property string ARTIST_NAME = "Ludwig van Beethoven"
+    property float SONG_LENGTH = 447
+    property float PLAYBACK_SECOND = 102
+
+    method build(BuildContext context) returns Widget{
+        return new Column(
+            children = list<Widget>[
+                new Image(
+                    image = new ImageFamily({
+                        1.0 => makeThumbnail(context, 1.0),
+                        2.0 => makeThumbnail(context, 2.0)
+                    })
+                ),
+                new Column(
+                    children = list<Widget>[
+                        new Column(
+                            children = list<Widget>[
+                                new Text(
+                                    SONG_NAME,
+                                    Font:default.withSize(FontSize:px(30)).asBold(),
+                                    Color:fromRGB(238, 238, 238)
+                                ),
+                                new Text(
+                                    ARTIST_NAME,
+                                    Font:default.withSize(FontSize:px(20)),
+                                    Color:fromRGB(109, 114, 123)
+                                )
+                            ],
+                            childGap = 10
+                        )
+                        new Slider(
+                            value = PLAYBACK_SECOND,
+                            minimum = 0,
+                            maximum = SONG_LENGTH,
+                            step = 0,
+                            width = context.fullWidth * 2/3f,
+                            height = 12,
+                            activeColor = Color:fromRGB(238, 238, 238),
+                            inactiveColor = Color:fromRGB(69, 74, 83),
+                            thumbColor = Color:fromRGB(238, 238, 238)
+                        ),
+                        new Row(
+                            children = list<Widget>[
+                                new IconButton(
+                                    icon = new ImageFamily({
+                                        1.0 => RegularCanvas:fromFileData($embed("images/symbol_previous@1x.png")),
+                                        2.0 => RegularCanvas:fromFileData($embed("images/symbol_previous@2x.png"))
+                                    })
+                                    backgroundColor = Color:fromRGB(42, 42, 52),
+                                    borderColor = Color:fromRGBA(0, 0, 0, 0),
+                                    cornerRadius = 15,
+                                    padding = Padding:all(10)
+                                ),
+                                new IconButton(
+                                    icon = new ImageFamily({
+                                        1.0 => RegularCanvas:fromFileData($embed("images/symbol_play@1x.png")),
+                                        2.0 => RegularCanvas:fromFileData($embed("images/symbol_play@2x.png"))
+                                    })
+                                    backgroundColor = Color:fromRGB(128, 64, 192),
+                                    borderColor = Color:fromRGBA(0, 0, 0, 0),
+                                    cornerRadius = 18,
+                                    padding = Padding:all(12)
+                                ),
+                                new IconButton(
+                                    icon = new ImageFamily({
+                                        1.0 => RegularCanvas:fromFileData($embed("images/symbol_next@1x.png")),
+                                        2.0 => RegularCanvas:fromFileData($embed("images/symbol_next@2x.png"))
+                                    })
+                                    backgroundColor = Color:fromRGB(42, 42, 52),
+                                    borderColor = Color:fromRGBA(0, 0, 0, 0),
+                                    cornerRadius = 15,
+                                    padding = Padding:all(10)
+                                )
+                            ],
+                            childGap = context.fullWidth / 10
+                        )
+                    ],
+                    mainAxisAlignment = MainAxisAlignment.Center,
+                    sizing = Sizing:ll(),
+                    childGap = 20
+                )
+            ],
+            color = Color:fromRGB(15, 10, 20),
+            sizing = Sizing:ll()
+        )
+    }
+
+    method makeThumbnail(BuildContext context, float scale) returns RegularCanvas{
+        var thumbnail = RegularCanvas:fromFileData($embed("images/thumbnail_dresden.jpg"))
+        var fullScaledWidth = context.fullWidth * scale
+        var fullScaledHeight = context.fullHeight * scale
+        if(fullScaledWidth / fullScaledHeight > thumbnail.width / thumbnail.height){
+            thumbnail.resizeScale(fullScaledWidth / thumbnail.width)
+            thumbnail = thumbnail.getSubImage(0, int(thumbnail.height / 2 - fullScaledHeight * 0.6 / 2), int(fullScaledWidth), int(fullScaledHeight * 0.6))
+        }else{
+            thumbnail.resizeScale((fullScaledHeight * 0.6) / thumbnail.height)
+            thumbnail = thumbnail.getSubImage(int(thumbnail.width / 2 - fullScaledWidth / 2), 0, int(fullScaledWidth), int(fullScaledHeight * 0.6))
+        }
+        var filter = new RegularCanvas(thumbnail.width, int(math.ceil(thumbnail.height * 0.33d)))
+        repeat(filter.height, i = 0){
+            filter.fillRectangle(new Rectangle(new Point(0, float(i)), new Size(float(filter.width), float(1))), Color:fromRGBA(15, 10, 20, byte(i / float(filter.height) * 255)))
+        }
+        thumbnail.drawImage(filter, 0, thumbnail.height - filter.height)
+        return thumbnail
+    }
+
+}

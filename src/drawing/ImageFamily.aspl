@@ -1,0 +1,33 @@
+import graphics
+
+[public]
+class ImageFamily {
+
+    [readpublic]
+    property map<float, RegularCanvas> images
+
+    [public]
+    property float width{
+        get{
+            return float(images[1.0].width)
+        }
+    }
+
+    [public]
+    property float height{
+        get{
+            return float(images[1.0].height)
+        }
+    }
+
+    [public]
+    method construct(map<float, RegularCanvas> images){
+        this.images = images
+        $if debug{
+            if(!images.containsKey(1.0)){
+                panic("ImageFamily must contain an unscaled (1.0x) image")
+            }
+        }
+    }
+
+}

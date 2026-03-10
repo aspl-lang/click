@@ -1,0 +1,22 @@
+import graphics
+
+import click.layouting
+import click.drawing
+
+[public]
+class SingleChildBox extends FlexBox {
+
+    [public]
+    method construct(
+        Widget child,
+        MainAxisAlignment mainAxisAlignment = MainAxisAlignment.Start,
+        CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.Center,
+        Padding? padding = null,
+        Color? color = null,
+        float cornerRadius = 0,
+        Sizing? sizing = null
+    ){
+        parent(FlexBox).construct([child], Axis.Horizontal, mainAxisAlignment, crossAxisAlignment, padding, 0, color, cornerRadius, sizing)
+    }
+
+}

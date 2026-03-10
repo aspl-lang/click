@@ -1,0 +1,82 @@
+import graphics
+import math.geometry
+
+import click.layouting
+import click.drawing
+import click.styles
+import click.events
+
+[public]
+class TextButton extends Widget {
+
+    [readpublic]
+    property string text
+    [readpublic]
+    property Font font
+    [readpublic]
+    property Color textColor
+    [readpublic]
+    property HorizontalTextFitting horizontalFitting
+    [readpublic]
+    property VerticalTextFitting verticalFitting
+    [readpublic]
+    property Padding? padding
+    [readpublic]
+    property Color backgroundColor
+    [readpublic]
+    property Color borderColor
+    [readpublic]
+    property float cornerRadius
+    [readpublic]
+    property callback? onClick
+
+    [public]
+    method construct(string text, Font font, Color textColor, HorizontalTextFitting horizontalFitting = HorizontalTextFitting.Full, VerticalTextFitting verticalFitting = VerticalTextFitting.Full, Padding? padding = null, Color? backgroundColor = null, Color? borderColor = null, float cornerRadius = 0, callback? onClick = null){        
+        this.text = text
+        this.font = font
+        this.textColor = textColor
+        this.horizontalFitting = horizontalFitting
+        this.verticalFitting = verticalFitting
+        this.padding = padding
+        if(backgroundColor != null){
+            this.backgroundColor = backgroundColor
+        }else{
+            this.backgroundColor = DefaultStyle:secondaryForegroundColor
+        }
+        if(borderColor != null){
+            this.borderColor = borderColor
+        }else{
+            this.borderColor = DefaultStyle:borderColor
+        }
+        this.cornerRadius = cornerRadius
+
+        var horizontalPadding = 0f
+        var verticalPadding = 0f
+        if(padding != null){
+            horizontalPadding = padding?!.left + padding?!.right
+            verticalPadding = padding?!.top + padding?!.bottom
+        }
+        var textSize = graphics.measure_text_size(text=text, font=font, verticalFitting=verticalFitting, horizontalFitting=horizontalFitting)
+        this.sizing = new Sizing(new FixedAxisSizing(textSize.width + horizontalPadding), new FixedAxisSizing(textSize.height + verticalPadding))
+
+        subscribeEventLocal(EventId.UnifiedClick, callback(UnifiedClickEvent event, EventContext context, Region region){
+            if(onClick != null){
+                onClick?!.()
+            }
+        })
+    }
+
+    [public]
+    method draw(CanvasRegion canvas){
+        canvas.fillRoundedRectangle(new Rectangle(new Point(0, 0), new Size(canvas.width, canvas.height)), cornerRadius, backgroundColor)
+        canvas.drawRoundedRectangle(new Rectangle(new Point(0, 0), new Size(canvas.width, canvas.height)), cornerRadius, borderColor)
+        var horizontalOffset = 0f
+        var verticalOffset = 0f
+        if(padding != null){
+            horizontalOffset = padding?!.left
+            verticalOffset = padding?!.top
+        }
+        canvas.drawText(text=text, font=font, color=textColor, x=horizontalOffset, y=verticalOffset, horizontalAlignment=HorizontalAlignment.Left, verticalAlignment=VerticalAlignment.Top, verticalFitting=verticalFitting, horizontalFitting=horizontalFitting)
+    }
+
+}

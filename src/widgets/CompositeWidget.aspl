@@ -1,0 +1,48 @@
+import math.geometry
+
+import click.layouting
+import click.drawing
+
+// CompositeWidget describes a widget that is entirely composed of other widgets and does not draw anything itself
+[public]
+[abstract]
+class CompositeWidget extends Widget, WidgetContainer {
+
+    property Widget? substitution
+
+    [public]
+    method construct(){
+        this.sizing = new Sizing(new TightAxisSizing(), new TightAxisSizing())
+    }
+
+    [public]
+    method getChildren() returns list<Widget>{
+        return [substitution?!]
+    }
+
+    // TODO: Document the build() method
+    [abstract]
+    method build(BuildContext context) returns Widget
+
+    [public]
+    method rebuild(BuildContext context){
+        substitution = build(context)
+    }
+
+    [public]
+    method assignChildrenSizes(Constraints constraints) returns Size{
+        substitution?!.layout(constraints)
+        return substitution?!.size
+    }
+
+    [public]
+    method assignChildrenPositions(){
+        substitution?!.position = new Point(0, 0)
+    }
+
+    [public]
+    method draw(CanvasRegion canvas){
+        drawChildrenDefault(canvas)
+    }
+
+}

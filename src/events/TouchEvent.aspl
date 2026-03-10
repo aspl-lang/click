@@ -1,0 +1,13 @@
+[public]
+[abstract]
+class TouchEvent extends Event {
+
+    [readpublic]
+    property TouchPointer pointer
+
+    [public]
+    method construct(TouchPointer pointer){
+        this.pointer = pointer
+    }
+
+}

@@ -1,0 +1,22 @@
+import graphics
+import math.geometry
+
+[public]
+class MouseMoveEvent extends MouseEvent {
+
+    [readpublic]
+    property float deltaX
+    [readpublic]
+    property float deltaY
+    [readpublic]
+    property bool down
+
+    [public]
+    method construct(Point position, float deltaX, float deltaY, bool down){
+        parent(MouseEvent).construct(position)
+        this.deltaX = deltaX
+        this.deltaY = deltaY
+        this.down = down
+    }
+
+}

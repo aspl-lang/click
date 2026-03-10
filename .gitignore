@@ -1,0 +1,7 @@
+*.ail
+*.c
+*.o
+*.exe
+*.exe.lib
+*.pdb
+*.apk

@@ -1,0 +1,19 @@
+[public]
+class TouchMoveEvent extends TouchEvent {
+
+    [readpublic]
+    property float deltaX
+    [readpublic]
+    property float deltaY
+    [readpublic]
+    property bool down
+
+    [public]
+    method construct(TouchPointer pointer, float deltaX, float deltaY, bool down){
+        parent(TouchEvent).construct(pointer)
+        this.deltaX = deltaX
+        this.deltaY = deltaY
+        this.down = down
+    }
+
+}

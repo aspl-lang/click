@@ -1,0 +1,357 @@
+import graphics
+import math.geometry
+
+import click.widgets
+import click.layouting
+import click.drawing
+import click.events
+
+[public]
+class AppWindow extends Window {
+
+    // TODO: Remove the ugly cast hacks (using a list for casting) used all over the place here
+
+    [public]
+    method construct(string title, int width, int height, CompositeWidget root){
+        parent(Window).construct(title, width, height)
+        this.setRetainMode(true)
+        root._setPosition(new Point(0, 0))
+        var fullFrameRegion = new Region(0, 0, float(width), float(height))
+        var firstFrame = true
+        var forceFullRebuild = true
+        this.onPaint = callback(Canvas canvas){
+            var scale = this.scale // TODO: Document this caching mechanism
+            fullFrameRegion = new Region(0, 0, canvas.width / scale, canvas.height / scale)
+            if(!firstFrame){
+                root.markStatesAsHalfCleanRecursive()
+            }
+            var context = new BuildContext(fullWidth=canvas.width / scale, fullHeight=canvas.height / scale, v2pScale=scale)
+            if(forceFullRebuild){
+                root.rebuildRecursive(context)
+            }else{
+                root.rebuildRecursiveOptimized(context)
+            }
+            root.layout(new Constraints(canvas.width / scale, canvas.height / scale, canvas.width / scale, canvas.height / scale))
+            var canvasRegion = new CanvasRegion(RegularCanvas(canvas), 0, 0, canvas.width / scale, canvas.height / scale, scale) // TODO: Ensure that `canvas` is actually a RegularCanvas (this, however, is currently always the case)
+            if(forceFullRebuild){
+                root.draw(canvasRegion)
+            }else{
+                root.redrawRecursiveOptimized(canvasRegion)
+            }
+            root.markStatesAsCleanRecursive()
+            firstFrame = false
+            forceFullRebuild = false
+        }
+        this.onResize = callback(int newWidth, int newHeight){
+            forceFullRebuild = true
+        }
+        var map<long, UnifiedPointer> unifiedPointers = {}
+        var map<long, click.events.TouchPointer> touchPointers = {}
+        this.onMouseDown = callback(Point position, MouseButton button){
+            position = new Point(position.x / scale, position.y / scale)
+            {
+                root.invokeEventHandlers(
+                    EventId.MouseDown,
+                    new MouseDownEvent(position, button),
+                    new EventContext(scale, unifiedPointers, touchPointers),
+                    position,
+                    callback(any handler, Event event, EventContext context, Region region){
+                        (list<callback<MouseDownEvent, EventContext, Region>>(any([handler])))[0].(MouseDownEvent(event), context, region)
+                    },
+                    fullFrameRegion
+                )
+            }
+            {
+                var pointer = new UnifiedPointer(-1, position, true, null, button, 1)
+                unifiedPointers[-1l] = pointer
+                root.invokeEventHandlers(
+                    EventId.UnifiedPointerDown,
+                    new UnifiedPointerDownEvent(pointer),
+                    new EventContext(scale, unifiedPointers, touchPointers),
+                    pointer.globalPosition,
+                    callback(any handler, Event event, EventContext context, Region region){
+                        (list<callback<UnifiedPointerDownEvent, EventContext, Region>>(any([handler])))[0].(UnifiedPointerDownEvent(event), context, region)
+                    },
+                    fullFrameRegion
+                )
+            }
+        }
+        this.onMouseMove = callback(Point end, float deltaX, float deltaY){
+            end = new Point(end.x / scale, end.y / scale)
+            deltaX /= scale
+            deltaY /= scale
+            var previouslyDown = unifiedPointers.containsKey(-1l) && unifiedPointers[-1l].down
+            {
+                root.invokeEventHandlers(
+                    EventId.MouseMove,
+                    new MouseMoveEvent(end, deltaX, deltaY, previouslyDown),
+                    new EventContext(scale, unifiedPointers, touchPointers),
+                    end,
+                    callback(any handler, Event event, EventContext context, Region region){
+                        (list<callback<MouseMoveEvent, EventContext, Region>>(any([handler])))[0].(MouseMoveEvent(event), context, region)
+                    },
+                    fullFrameRegion
+                )
+            }
+            {
+                var pointer = new UnifiedPointer(-1, new Point(end.x, end.y), previouslyDown, null, null, 1)
+                unifiedPointers[-1l] = pointer
+                root.invokeEventHandlers(
+                    EventId.UnifiedPointerMove,
+                    new UnifiedPointerMoveEvent(pointer, deltaX, deltaY),
+                    new EventContext(scale, unifiedPointers, touchPointers),
+                    pointer.globalPosition,
+                    callback(any handler, Event event, EventContext context, Region region){
+                        (list<callback<UnifiedPointerMoveEvent, EventContext, Region>>(any([handler])))[0].(UnifiedPointerMoveEvent(event), context, region)
+                    },
+                    fullFrameRegion
+                )
+            }
+        }
+        this.onMouseUp = callback(Point position, MouseButton button){
+            position = new Point(position.x / scale, position.y / scale)
+            {
+                root.invokeEventHandlers(
+                    EventId.MouseUp,
+                    new MouseUpEvent(position, button),
+                    new EventContext(scale, unifiedPointers, touchPointers),
+                    position,
+                    callback(any handler, Event event, EventContext context, Region region){
+                        (list<callback<MouseUpEvent, EventContext, Region>>(any([handler])))[0].(MouseUpEvent(event), context, region)
+                    },
+                    fullFrameRegion
+                )
+            }
+            {
+                var pointer = new UnifiedPointer(-1, position, false, null, button, 1)
+                unifiedPointers.remove(-1)
+                root.invokeEventHandlers(
+                    EventId.UnifiedPointerUp,
+                    new UnifiedPointerUpEvent(pointer),
+                    new EventContext(scale, unifiedPointers, touchPointers),
+                    pointer.globalPosition,
+                    callback(any handler, Event event, EventContext context, Region region){
+                        (list<callback<UnifiedPointerUpEvent, EventContext, Region>>(any([handler])))[0].(UnifiedPointerUpEvent(event), context, region)
+                    },
+                    fullFrameRegion
+                )
+            }
+            {
+                var pointer = new UnifiedPointer(-1, position, false, null, button, 1)
+                unifiedPointers.remove(-1)
+                root.invokeEventHandlers(
+                    EventId.UnifiedClick,
+                    new UnifiedClickEvent(pointer),
+                    new EventContext(scale, unifiedPointers, touchPointers),
+                    pointer.globalPosition,
+                    callback(any handler, Event event, EventContext context, Region region){
+                        (list<callback<UnifiedClickEvent, EventContext, Region>>(any([handler])))[0].(UnifiedClickEvent(event), context, region)
+                    },
+                    fullFrameRegion
+                ) // TODO: Only invoke UnifiedClickEvents when the associated pointer down event had been dispatched to the same widget?
+            }
+        }
+        this.onMouseWheel = callback(Point position, float deltaX, float deltaY){
+            position = new Point(position.x / scale, position.y / scale)
+            deltaX /= scale
+            deltaY /= scale
+            {
+                root.invokeEventHandlers(
+                    EventId.MouseWheel,
+                    new MouseWheelEvent(position, deltaX, deltaY),
+                    new EventContext(scale, unifiedPointers, touchPointers),
+                    position,
+                    callback(any handler, Event event, EventContext context, Region region){
+                        (list<callback<MouseWheelEvent, EventContext, Region>>(any([handler])))[0].(MouseWheelEvent(event), context, region)
+                    },
+                    fullFrameRegion
+                )
+            }
+        }
+        this.onTouchDown = callback(graphics.TouchPointer touchPointer){
+            var position = new Point(touchPointer.position.x / scale, touchPointer.position.y / scale)
+            {
+                var pointer = new click.events.TouchPointer(touchPointer.identifier, position, true, touchPointer.toolType, touchPointer.pressure)
+                touchPointers[pointer.identifier] = pointer
+                root.invokeEventHandlers(
+                    EventId.TouchDown,
+                    new TouchDownEvent(pointer),
+                    new EventContext(scale, unifiedPointers, touchPointers),
+                    pointer.globalPosition,
+                    callback(any handler, Event event, EventContext context, Region region){
+                        (list<callback<TouchDownEvent, EventContext, Region>>(any([handler])))[0].(TouchDownEvent(event), context, region)
+                    },
+                    fullFrameRegion
+                )
+            }
+            {
+                var pointer = new UnifiedPointer(touchPointer.identifier, position, true, touchPointer.toolType, null, touchPointer.pressure)
+                unifiedPointers[pointer.identifier] = pointer
+                root.invokeEventHandlers(
+                    EventId.UnifiedPointerDown,
+                    new UnifiedPointerDownEvent(pointer),
+                    new EventContext(scale, unifiedPointers, touchPointers),
+                    pointer.globalPosition,
+                    callback(any handler, Event event, EventContext context, Region region){
+                        (list<callback<UnifiedPointerDownEvent, EventContext, Region>>(any([handler])))[0].(UnifiedPointerDownEvent(event), context, region)
+                    },
+                    fullFrameRegion
+                )
+            }
+        }
+        this.onTouchMove = callback(graphics.TouchPointer touchPointer, float deltaX, float deltaY){
+            var position = new Point(touchPointer.position.x / scale, touchPointer.position.y / scale)
+            deltaX /= scale
+            deltaY /= scale
+            var previouslyDown = unifiedPointers.containsKey(touchPointer.identifier) && unifiedPointers[touchPointer.identifier].down
+            {
+                var pointer = new click.events.TouchPointer(touchPointer.identifier, position, previouslyDown, touchPointer.toolType, touchPointer.pressure)
+                touchPointers[pointer.identifier] = pointer
+                root.invokeEventHandlers(
+                    EventId.TouchMove,
+                    new TouchMoveEvent(pointer, deltaX, deltaY, previouslyDown),
+                    new EventContext(scale, unifiedPointers, touchPointers),
+                    pointer.globalPosition,
+                    callback(any handler, Event event, EventContext context, Region region){
+                        (list<callback<TouchMoveEvent, EventContext, Region>>(any([handler])))[0].(TouchMoveEvent(event), context, region)
+                    },
+                    fullFrameRegion
+                )
+            }
+            {
+                var pointer = new UnifiedPointer(touchPointer.identifier, position, previouslyDown, touchPointer.toolType, null, touchPointer.pressure)
+                unifiedPointers[pointer.identifier] = pointer
+                root.invokeEventHandlers(
+                    EventId.UnifiedPointerMove,
+                    new UnifiedPointerMoveEvent(pointer, deltaX, deltaY),
+                    new EventContext(scale, unifiedPointers, touchPointers),
+                    pointer.globalPosition,
+                    callback(any handler, Event event, EventContext context, Region region){
+                        (list<callback<UnifiedPointerMoveEvent, EventContext, Region>>(any([handler])))[0].(UnifiedPointerMoveEvent(event), context, region)
+                    },
+                    fullFrameRegion
+                )
+            }
+        }
+        this.onTouchUp = callback(graphics.TouchPointer touchPointer){
+            var position = new Point(touchPointer.position.x / scale, touchPointer.position.y / scale)
+            {
+                var pointer = new click.events.TouchPointer(touchPointer.identifier, position, false, touchPointer.toolType, touchPointer.pressure)
+                touchPointers.remove(pointer.identifier)
+                root.invokeEventHandlers(
+                    EventId.TouchUp,
+                    new TouchUpEvent(pointer),
+                    new EventContext(scale, unifiedPointers, touchPointers),
+                    pointer.globalPosition,
+                    callback(any handler, Event event, EventContext context, Region region){
+                        (list<callback<TouchUpEvent, EventContext, Region>>(any([handler])))[0].(TouchUpEvent(event), context, region)
+                    },
+                    fullFrameRegion
+                )
+            }
+            {
+                var pointer = new UnifiedPointer(touchPointer.identifier, position, false, touchPointer.toolType, null, touchPointer.pressure)
+                unifiedPointers.remove(pointer.identifier)
+                root.invokeEventHandlers(
+                    EventId.UnifiedPointerUp,
+                    new UnifiedPointerUpEvent(pointer),
+                    new EventContext(scale, unifiedPointers, touchPointers),
+                    pointer.globalPosition,
+                    callback(any handler, Event event, EventContext context, Region region){
+                        (list<callback<UnifiedPointerUpEvent, EventContext, Region>>(any([handler])))[0].(UnifiedPointerUpEvent(event), context, region)
+                    },
+                    fullFrameRegion
+                )
+            }
+            {
+                var pointer = new UnifiedPointer(touchPointer.identifier, position, false, touchPointer.toolType, null, touchPointer.pressure)
+                unifiedPointers.remove(pointer.identifier)
+                root.invokeEventHandlers(
+                    EventId.UnifiedClick,
+                    new UnifiedPointerUpEvent(pointer),
+                    new EventContext(scale, unifiedPointers, touchPointers),
+                    pointer.globalPosition,
+                    callback(any handler, Event event, EventContext context, Region region){
+                        (list<callback<UnifiedClickEvent, EventContext, Region>>(any([handler])))[0].(UnifiedClickEvent(event), context, region)
+                    },
+                    fullFrameRegion
+                ) // TODO: Only invoke UnifiedClickEvents when the associated pointer down event had been dispatched to the same widget?
+            }
+        }
+        this.onTouchCancel = callback(graphics.TouchPointer touchPointer){
+            var position = new Point(touchPointer.position.x / scale, touchPointer.position.y / scale)
+            {
+                var pointer = new click.events.TouchPointer(touchPointer.identifier, position, false, touchPointer.toolType, touchPointer.pressure)
+                touchPointers.remove(pointer.identifier)
+                root.invokeEventHandlers(
+                    EventId.TouchCancel,
+                    new TouchCancelEvent(pointer),
+                    new EventContext(scale, unifiedPointers, touchPointers),
+                    pointer.globalPosition,
+                    callback(any handler, Event event, EventContext context, Region region){
+                        (list<callback<TouchCancelEvent, EventContext, Region>>(any([handler])))[0].(TouchCancelEvent(event), context, region)
+                    },
+                    fullFrameRegion
+                )
+            }
+            {
+                var pointer = new UnifiedPointer(touchPointer.identifier, position, false, touchPointer.toolType, null, touchPointer.pressure)
+                unifiedPointers.remove(pointer.identifier)
+                root.invokeEventHandlers(
+                    EventId.UnifiedPointerCancel,
+                    new UnifiedPointerCancelEvent(pointer),
+                    new EventContext(scale, unifiedPointers, touchPointers),
+                    pointer.globalPosition,
+                    callback(any handler, Event event, EventContext context, Region region){
+                        (list<callback<UnifiedPointerCancelEvent, EventContext, Region>>(any([handler])))[0].(UnifiedPointerCancelEvent(event), context, region)
+                    },
+                    fullFrameRegion
+                )
+            }
+        }
+        // TODO: What about local callbacks for key events?
+        this.onKeyDown = callback(KeyCode key){
+            {
+                root.invokeEventHandlers(
+                    EventId.KeyDown,
+                    new KeyDownEvent(key),
+                    new EventContext(scale, unifiedPointers, touchPointers),
+                    null,
+                    callback(any handler, Event event, EventContext context, Region region){
+                        (list<callback<KeyDownEvent, EventContext, Region>>(any([handler])))[0].(KeyDownEvent(event), context, region)
+                    },
+                    fullFrameRegion
+                )
+            }
+        }
+        this.onKeyUp = callback(KeyCode key){
+            {
+                root.invokeEventHandlers(
+                    EventId.KeyUp,
+                    new KeyUpEvent(key),
+                    new EventContext(scale, unifiedPointers, touchPointers),
+                    null,
+                    callback(any handler, Event event, EventContext context, Region region){
+                        (list<callback<KeyUpEvent, EventContext, Region>>(any([handler])))[0].(KeyUpEvent(event), context, region)
+                    },
+                    fullFrameRegion
+                )
+            }
+        }
+        this.onKeyPress = callback(KeyCode key){
+            {
+                root.invokeEventHandlers(
+                    EventId.KeyPress,
+                    new KeyPressEvent(key),
+                    new EventContext(scale, unifiedPointers, touchPointers),
+                    null,
+                    callback(any handler, Event event, EventContext context, Region region){
+                        (list<callback<KeyPressEvent, EventContext, Region>>(any([handler])))[0].(KeyPressEvent(event), context, region)
+                    },
+                    fullFrameRegion
+                )
+            }
+        }
+    }
+
+}

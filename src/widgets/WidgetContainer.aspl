@@ -1,0 +1,31 @@
+import math.geometry
+
+import click.layouting
+import click.drawing
+
+[public]
+[abstract]
+class WidgetContainer {
+
+    [public]
+    [abstract]
+    method getChildren() returns list<Widget>
+
+    [public] // TODO
+    [abstract]
+    method assignChildrenSizes(Constraints constraints) returns Size
+
+    [public] // TODO
+    [abstract]
+    method assignChildrenPositions()
+
+    method drawChildrenDefault(CanvasRegion canvas){
+        foreach(getChildren() as child){
+            var thisWidget = Widget(any(this)) // TODO
+            var childCanvas = canvas.createSubRegion(child.position.x, child.position.y, child.size.width, child.size.height)
+            childCanvas.setAbsoluteClippingArea(thisWidget.position.x + child.position.x, thisWidget.position.y + child.position.y, thisWidget.position.x + child.position.x + child.size.width, thisWidget.position.y + child.position.y + child.size.height)
+            child.draw(childCanvas)
+        }
+    }
+
+}

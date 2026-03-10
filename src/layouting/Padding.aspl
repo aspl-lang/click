@@ -1,0 +1,33 @@
+[public]
+class Padding {
+
+    [readpublic]
+    property float left
+    [readpublic]
+    property float right
+    [readpublic]
+    property float top
+    [readpublic]
+    property float bottom
+
+    [public]
+    method construct(float left = 0, float right = 0, float top = 0, float bottom = 0){
+        this.left = left
+        this.right = right
+        this.top = top
+        this.bottom = bottom
+    }
+
+    [public]
+    [static]
+    method all(float value) returns Padding{
+        return new Padding(value, value, value, value)
+    }
+
+    [public]
+    [static]
+    method lrtb(float left, float right, float top, float bottom) returns Padding{
+        return new Padding(left, right, top, bottom)
+    }
+
+}

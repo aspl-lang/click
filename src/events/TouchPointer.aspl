@@ -1,0 +1,27 @@
+import graphics
+import math.geometry
+
+[public]
+class TouchPointer {
+
+    [readpublic]
+    property long identifier
+    [readpublic]
+    property Point globalPosition
+    [readpublic]
+    property bool down
+    [readpublic]
+    property TouchToolType toolType
+    [readpublic]
+    property float pressure
+
+    [public]
+    method construct(long identifier, Point globalPosition, bool down, TouchToolType toolType, float pressure){
+        this.identifier = identifier
+        this.globalPosition = globalPosition
+        this.down = down
+        this.toolType = toolType
+        this.pressure = pressure
+    }
+
+}

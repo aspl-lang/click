@@ -1,0 +1,16 @@
+import graphics
+import math.geometry
+
+[public]
+[abstract]
+class MouseEvent extends Event {
+
+    [readpublic]
+    property Point position
+
+    [public]
+    method construct(Point position){
+        this.position = position
+    }
+
+}

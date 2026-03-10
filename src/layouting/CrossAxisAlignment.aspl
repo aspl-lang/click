@@ -1,0 +1,7 @@
+[public]
+enum CrossAxisAlignment {
+    Start,
+    End,
+    Center,
+    Stretch
+}

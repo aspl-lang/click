@@ -1,0 +1,23 @@
+import graphics
+
+import click.layouting
+import click.drawing
+
+[public]
+class Column extends FlexBox {
+
+    [public]
+    method construct(
+        list<Widget> children,
+        MainAxisAlignment mainAxisAlignment = MainAxisAlignment.Start,
+        CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.Center,
+        Padding? padding = null,
+        float childGap = 0,
+        Color? color = null,
+        float cornerRadius = 0,
+        Sizing? sizing = null
+    ){
+        parent(FlexBox).construct(children, Axis.Vertical, mainAxisAlignment, crossAxisAlignment, padding, childGap, color, cornerRadius, sizing)
+    }
+
+}

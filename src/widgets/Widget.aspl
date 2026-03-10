@@ -1,0 +1,240 @@
+import math.geometry
+
+import click.layouting
+import click.state
+import click.drawing
+import click.events
+
+[public]
+[abstract]
+class Widget {
+
+    [readpublic]
+    property Point position
+    [readpublic]
+    property Size size
+    [readpublic]
+    property Sizing sizing
+
+    [readpublic]
+    property map<EventId, list<any>> globalEventHandlers
+    [readpublic]
+    property map<EventId, list<any>> localEventHandlers
+
+    [public]
+    method construct(Sizing sizing){
+        this.sizing = sizing
+    }
+
+    // _setPosition is for internal use only
+    [public]
+    method _setPosition(Point position){
+        this.position = position
+    }
+
+    [public]
+    method layout(Constraints constraints){
+        $if debug{
+            if(sizing == null){
+                panic("Widget sizing not initialized")
+            }
+        }
+        var widthSizing = sizing.widthSizing
+        var heightSizing = sizing.heightSizing
+
+        var Size? childrenSize = null
+        if(this oftype WidgetContainer){
+            var float minWidth = 0
+            var float minHeight = 0
+            var float maxWidth = 1000000 // ~ infinity
+            var float maxHeight = 1000000
+            if(widthSizing oftype FixedAxisSizing){
+                minWidth = FixedAxisSizing(widthSizing).value
+                maxWidth = FixedAxisSizing(widthSizing).value
+            }
+            if(heightSizing oftype FixedAxisSizing){
+                minHeight = FixedAxisSizing(heightSizing).value
+                maxHeight = FixedAxisSizing(heightSizing).value
+            }
+            if(minWidth < constraints.minWidth){
+                minWidth = constraints.minWidth
+            }
+            if(minWidth > constraints.maxWidth){
+                minWidth = constraints.maxWidth
+            }
+            if(maxWidth < constraints.minWidth){
+                maxWidth = constraints.maxWidth
+            }
+            if(maxWidth > constraints.maxWidth){
+                maxWidth = constraints.maxWidth
+            }
+            if(minHeight < constraints.minHeight){
+                minHeight = constraints.minHeight
+            }
+            if(minHeight > constraints.maxHeight){
+                minHeight = constraints.maxHeight
+            }
+            if(maxHeight < constraints.minHeight){
+                maxHeight = constraints.maxHeight
+            }
+            if(maxHeight > constraints.maxHeight){
+                maxHeight = constraints.maxHeight
+            }
+            childrenSize = WidgetContainer(any(this)).assignChildrenSizes(new Constraints(minWidth, minHeight, maxWidth, maxHeight)) // TODO: Remove this any() cast
+        }
+
+        var float width = 0
+        if(widthSizing oftype FixedAxisSizing){
+            width = FixedAxisSizing(widthSizing).value
+        }elseif(widthSizing oftype TightAxisSizing){
+            width = childrenSize?!.width
+        }elseif(widthSizing oftype LooseAxisSizing){
+            width = constraints.maxWidth
+        }
+        if(width < constraints.minWidth){
+            width = constraints.minWidth
+        }
+
+        var float height = 0
+        if(heightSizing oftype FixedAxisSizing){
+            height = FixedAxisSizing(heightSizing).value
+        }elseif(heightSizing oftype TightAxisSizing){
+            height = childrenSize?!.height
+        }elseif(heightSizing oftype LooseAxisSizing){
+            height = constraints.maxHeight
+        }
+        if(height < constraints.minHeight){
+            height = constraints.minHeight
+        }
+
+        this.size = new Size(width, height)
+
+        if(this oftype WidgetContainer){
+            WidgetContainer(any(this)).assignChildrenPositions()
+        }
+    }
+
+    [public]
+    [abstract]
+    method draw(CanvasRegion canvas)
+
+    [public]
+    method rebuildRecursive(BuildContext context){
+        if(this oftype CompositeWidget){
+            CompositeWidget(this).rebuild(context)
+        }
+        if(this oftype WidgetContainer){
+            foreach(WidgetContainer(any(this)).getChildren() as child){
+                child.rebuildRecursive(context)
+            }
+        }
+    }
+
+    [public]
+    method rebuildRecursiveOptimized(BuildContext context){
+        if(this oftype Stateful){
+            foreach(Stateful(any(this)).stateSubscriptions as state => subscriptionType){
+                if(state.dirty && subscriptionType == StateSubscriptionType.Rebuild){
+                    rebuildRecursive(context)
+                    return
+                }
+            }
+        }
+        if(this oftype WidgetContainer){
+            foreach(WidgetContainer(any(this)).getChildren() as child){
+                child.rebuildRecursiveOptimized(context)
+            }
+        }
+    }
+
+    [public]
+    method markStatesAsHalfCleanRecursive(){
+        if(this oftype Stateful){
+            foreach(Stateful(any(this)).stateSubscriptions as state => _){
+                state.markAsHalfClean()
+            }
+        }
+        if(this oftype WidgetContainer){
+            foreach(WidgetContainer(any(this)).getChildren() as child){
+                child.markStatesAsHalfCleanRecursive()
+            }
+        }
+    }
+
+    [public]
+    method markStatesAsCleanRecursive(){
+        if(this oftype Stateful){
+            foreach(Stateful(any(this)).stateSubscriptions as state => _){
+                if(state.halfClean){
+                    state.markAsClean()
+                }
+            }
+        }
+        if(this oftype WidgetContainer){
+            foreach(WidgetContainer(any(this)).getChildren() as child){
+                child.markStatesAsCleanRecursive()
+            }
+        }
+    }
+
+    [public]
+    method redrawRecursiveOptimized(CanvasRegion canvas){
+        if(this oftype Stateful){
+            foreach(Stateful(any(this)).stateSubscriptions as state => subscriptionType){
+                if(state.dirty){
+                    draw(canvas)
+                    return
+                }
+            }
+        }
+        if(this oftype WidgetContainer){
+            foreach(WidgetContainer(any(this)).getChildren() as child){
+                var childCanvas = canvas.createSubRegion(child.position.x, child.position.y, child.size.width, child.size.height)
+                childCanvas.setAbsoluteClippingArea(this.position.x + child.position.x, this.position.y + child.position.y, this.position.x + child.position.x + child.size.width, this.position.y + child.position.y + child.size.height)
+                child.redrawRecursiveOptimized(childCanvas)
+            }
+        }
+    }
+
+    [public]
+    method subscribeEventGlobal(EventId id, any handler){
+        if(!globalEventHandlers.containsKey(id)){
+            globalEventHandlers[id] = []
+        }
+        globalEventHandlers[id].add(handler)
+    }
+
+    [public]
+    method subscribeEventLocal(EventId id, any handler){
+        if(!localEventHandlers.containsKey(id)){
+            localEventHandlers[id] = []
+        }
+        localEventHandlers[id].add(handler)
+    }
+
+    [public]
+    method invokeEventHandlers(EventId id, Event event, EventContext context, Point? hitPoint, callback<any, Event, EventContext, Region> handle, Region region){
+        if(globalEventHandlers.containsKey(id)){
+            foreach(globalEventHandlers[id] as cb){
+                handle.(cb, event, context, region)
+            }
+        }
+        if(!event.dispatchedToReceiver && localEventHandlers.containsKey(id) && hitPoint != null && region.containsPoint(hitPoint?!)){
+            event.dispatchedToReceiver = true
+            foreach(localEventHandlers[id] as cb){
+                handle.(cb, event, context, region)
+            }
+        }
+        if(this oftype WidgetContainer){
+            var children = WidgetContainer(any(this)).getChildren()
+            var i = children.length - 1
+            while(i >= 0){
+                var child = children[i]
+                var childRegion = new Region(region.x + child.position.x, region.y + child.position.y, child.size.width, child.size.height)
+                child.invokeEventHandlers(id, event, context, hitPoint, handle, childRegion)
+                i--
+            }
+        }
+    }
+
+}

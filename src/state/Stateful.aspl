@@ -1,0 +1,13 @@
+[public]
+[abstract]
+class Stateful {
+
+    [readpublic] // TODO
+    property map<State, StateSubscriptionType> stateSubscriptions
+
+    [public]
+    method subscribeState(State state, StateSubscriptionType type = StateSubscriptionType.Rebuild){
+        stateSubscriptions[state] = type
+    }
+
+}

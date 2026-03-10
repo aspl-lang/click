@@ -1,0 +1,24 @@
+import click.layouting
+
+[public]
+class EventContext {
+
+    // TODO
+
+    [readpublic]
+    property float v2pScale
+
+    [readpublic]
+    property map<long, UnifiedPointer> activeUnifiedPointers
+
+    [readpublic]
+    property map<long, TouchPointer> activeTouchPointers
+
+    [public]
+    method construct(float v2pScale, map<long, UnifiedPointer> activeUnifiedPointers, map<long, TouchPointer> activeTouchPointers){
+        this.v2pScale = v2pScale
+        this.activeUnifiedPointers = activeUnifiedPointers
+        this.activeTouchPointers = activeTouchPointers
+    }
+
+}

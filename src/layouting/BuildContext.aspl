@@ -1,0 +1,18 @@
+[public]
+class BuildContext {
+
+    [readpublic]
+    property float fullWidth
+    [readpublic]
+    property float fullHeight
+    [readpublic]
+    property float v2pScale
+
+    [public]
+    method construct(float fullWidth, float fullHeight, float v2pScale){
+        this.fullWidth = fullWidth
+        this.fullHeight = fullHeight
+        this.v2pScale = v2pScale
+    }
+
+}

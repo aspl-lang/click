@@ -1,0 +1,27 @@
+import graphics
+import math.geometry
+
+import click.layouting
+import click.drawing
+
+[public]
+class ColorBox extends Widget {
+
+    [readpublic]
+    property Color color
+    [readpublic]
+    property float cornerRadius
+
+    [public]
+    method construct(Color color, Sizing sizing){
+        this.color = color
+
+        this.sizing = sizing
+    }
+
+    [public]
+    method draw(CanvasRegion canvas){
+        canvas.fillRoundedRectangle(new Rectangle(new Point(0, 0), new Size(canvas.width, canvas.height)), cornerRadius, this.color, this.color.a != 255b)
+    }
+
+}

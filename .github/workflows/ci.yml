@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  - push
+
+jobs:
+  build-examples-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Install graphics libraries
+        run: sudo apt-get install --quiet -y libglfw3-dev libxi-dev libxcursor-dev
+
+      - name: Install ASPL
+        uses: aspl-lang/setup-aspl@v1.1
+
+      - name: Make this Click checkout available as an ASPL module
+        run: |
+          cd $GITHUB_WORKSPACE
+          # TODO: aspl install .
+          mkdir ~/.aspl_modules
+          cp -r . ~/.aspl_modules/click
+
+      - name: Build the examples
+        run: |
+          cd $GITHUB_WORKSPACE
+          for example in examples/*/; do
+            aspl -cc gcc -backend c compile "$example"
+          done

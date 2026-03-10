@@ -1,0 +1,15 @@
+import graphics
+
+[public]
+[abstract]
+class KeyEvent extends Event {
+
+    [readpublic]
+    property KeyCode key
+
+    [public]
+    method construct(KeyCode key){
+        this.key = key
+    }
+
+}

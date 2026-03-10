@@ -1,0 +1,38 @@
+import graphics
+import math.geometry
+
+import click.layouting
+import click.drawing
+
+[public]
+class Text extends Widget {
+
+    [readpublic]
+    property string text
+    [readpublic]
+    property Font font
+    [readpublic]
+    property Color color
+    [readpublic]
+    property HorizontalTextFitting horizontalFitting
+    [readpublic]
+    property VerticalTextFitting verticalFitting
+
+    [public]
+    method construct(string text, Font font, Color color, HorizontalTextFitting horizontalFitting = HorizontalTextFitting.Full, VerticalTextFitting verticalFitting = VerticalTextFitting.Full){
+        this.text = text
+        this.font = font
+        this.color = color
+        this.horizontalFitting = horizontalFitting
+        this.verticalFitting = verticalFitting
+
+        var size = graphics.measure_text_size(text, font, horizontalFitting, verticalFitting)
+        this.sizing = new Sizing(new FixedAxisSizing(size.width), new FixedAxisSizing(size.height))
+    }
+
+    [public]
+    method draw(CanvasRegion canvas){
+        canvas.drawText(text, 0, 0, font, color, HorizontalAlignment.Left, VerticalAlignment.Top, horizontalFitting, verticalFitting)
+    }
+
+}

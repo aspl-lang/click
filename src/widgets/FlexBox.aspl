@@ -1,0 +1,275 @@
+import graphics
+import math.geometry
+
+import click.layouting
+import click.drawing
+
+[public]
+class FlexBox extends Widget, WidgetContainer {
+
+    [readpublic]
+    property list<Widget> children
+    [readpublic]
+    property Axis axis
+    [readpublic]
+    property MainAxisAlignment mainAxisAlignment
+    [readpublic]
+    property CrossAxisAlignment crossAxisAlignment
+    [readpublic]
+    property Padding? padding
+    [readpublic]
+    property float childGap
+    [readpublic]
+    property Color? color
+    [readpublic]
+    property float cornerRadius
+
+    [public]
+    method construct(
+        list<Widget> children,
+        Axis axis,
+        MainAxisAlignment mainAxisAlignment = MainAxisAlignment.Start,
+        CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.Center,
+        Padding? padding = null,
+        float childGap = 0,
+        Color? color = null,
+        float cornerRadius = 0,
+        Sizing? sizing = null
+    ){
+        this.children = children
+        this.axis = axis
+        this.mainAxisAlignment = mainAxisAlignment
+        this.crossAxisAlignment = crossAxisAlignment
+        this.padding = padding
+        this.childGap = childGap
+        this.color = color
+        this.cornerRadius = cornerRadius
+
+        if(sizing == null){
+            this.sizing = new Sizing(new TightAxisSizing(), new TightAxisSizing())
+        }else{
+            this.sizing = sizing
+        }
+    }
+
+    [public]
+    method getChildren() returns list<Widget>{
+        return children
+    }
+
+    [public]
+    method assignChildrenSizes(Constraints constraints) returns Size{
+        var float horizontalReduction = 0
+        var float verticalReduction = 0
+        if(axis == Axis.Horizontal){
+            horizontalReduction += childGap * (children.length - 1)
+        }else{
+            verticalReduction += childGap * (children.length - 1)
+        }
+        if(padding != null){
+            horizontalReduction += padding?!.left + padding?!.right
+            verticalReduction += padding?!.top + padding?!.bottom
+        }
+        constraints = new Constraints(constraints.minWidth, constraints.minHeight, constraints.maxWidth - horizontalReduction, constraints.maxHeight - verticalReduction)
+
+        var float minWidth = 0
+        var float minHeight = 0
+        if(crossAxisAlignment == CrossAxisAlignment.Stretch){
+            if(axis == Axis.Horizontal){
+                minHeight = constraints.maxHeight
+            }else{
+                minWidth = constraints.maxWidth
+            }
+        }
+
+        $if debug{
+            foreach(children as child){
+                if(child.sizing == null){
+                    panic("Widget sizing not initialized")
+                }
+            }
+        }
+
+        var float totalWidth = 0
+        var float totalHeight = 0
+        if(axis == Axis.Horizontal){
+            foreach(children as child){
+                if(child.sizing.widthSizing oftype FixedAxisSizing){
+                    child.layout(new Constraints(minWidth, minHeight, constraints.maxWidth, constraints.maxHeight))
+                    totalWidth += child.size.width
+                    if(child.size.height > totalHeight){
+                        totalHeight = child.size.height
+                    }
+                }
+            }
+            foreach(children as child){
+                if(child.sizing.widthSizing oftype TightAxisSizing){
+                    child.layout(new Constraints(minWidth, minHeight, float(constraints.maxWidth - totalWidth), float(constraints.maxHeight)))
+                    totalWidth += child.size.width
+                    if(child.size.height > totalHeight){
+                        totalHeight = child.size.height
+                    }
+                }
+            }
+            var remainingWidthForLoose = constraints.maxWidth - totalWidth
+            var int looseCount = 0
+            foreach(children as child){
+                if(child.sizing.widthSizing oftype LooseAxisSizing){
+                    looseCount++
+                }
+            }
+            foreach(children as child){
+                if(child.sizing.widthSizing oftype LooseAxisSizing){
+                    child.layout(new Constraints(minWidth, minHeight, float(remainingWidthForLoose / looseCount), float(constraints.maxHeight)))
+                    totalWidth += child.size.width
+                    if(child.size.height > totalHeight){
+                        totalHeight = child.size.height
+                    }
+                }
+            }
+        }else{
+            foreach(children as child){
+                if(child.sizing.heightSizing oftype FixedAxisSizing){
+                    child.layout(new Constraints(minWidth, minHeight, constraints.maxWidth, constraints.maxHeight))
+                    totalHeight += child.size.height
+                    if(child.size.width > totalWidth){
+                        totalWidth = child.size.width
+                    }
+                }
+            }
+            foreach(children as child){
+                if(child.sizing.heightSizing oftype TightAxisSizing){
+                    child.layout(new Constraints(minWidth, minHeight, float(constraints.maxWidth), float(constraints.maxHeight - totalHeight)))
+                    totalHeight += child.size.height
+                    if(child.size.width > totalWidth){
+                        totalWidth = child.size.width
+                    }
+                }
+            }
+            var remainingHeightForLoose = constraints.maxHeight - totalHeight
+            var int looseCount = 0
+            foreach(children as child){
+                if(child.sizing.heightSizing oftype LooseAxisSizing){
+                    looseCount++
+                }
+            }
+            foreach(children as child){
+                if(child.sizing.heightSizing oftype LooseAxisSizing){
+                    child.layout(new Constraints(minWidth, minHeight, float(constraints.maxWidth), float(remainingHeightForLoose / looseCount)))
+                    totalHeight += child.size.height
+                    if(child.size.width > totalWidth){
+                        totalWidth = child.size.width
+                    }
+                }
+            }
+        }
+
+        return new Size(totalWidth + horizontalReduction, totalHeight + verticalReduction)
+    }
+
+    [public]
+    method assignChildrenPositions(){
+        var float horizontalReduction = 0
+        var float verticalReduction = 0
+        if(axis == Axis.Horizontal){
+            horizontalReduction += childGap * (children.length - 1)
+        }else{
+            verticalReduction += childGap * (children.length - 1)
+        }
+        if(padding != null){
+            horizontalReduction += padding?!.left + padding?!.right
+            verticalReduction += padding?!.top + padding?!.bottom
+        }
+        var reducedSize = new Size(this.size.width - horizontalReduction, this.size.height - verticalReduction)
+
+        var float sizeM = 0
+        var float sizeC = 0
+        var float childrenSizeMSum = 0
+        var float childrenSizeCSum = 0
+        var float positionM = 0
+        var float positionC = 0
+
+        if(axis == Axis.Horizontal){
+            sizeM = reducedSize.width
+            sizeC = reducedSize.height
+            foreach(children as child){
+                childrenSizeMSum += child.size.width
+                childrenSizeCSum += child.size.height
+            }
+            if(padding != null){
+                positionM += padding?!.left
+                positionC += padding?!.top
+            }
+        }else{
+            sizeM = reducedSize.height
+            sizeC = reducedSize.width
+            foreach(children as child){
+                childrenSizeMSum += child.size.height
+                childrenSizeCSum += child.size.width
+            }
+            if(padding != null){
+                positionM += padding?!.top
+                positionC += padding?!.left
+            }
+        }
+
+        if(mainAxisAlignment == MainAxisAlignment.Center){
+            positionM += (sizeM - childrenSizeMSum) / 2
+        }elseif(mainAxisAlignment == MainAxisAlignment.End){
+            positionM += sizeM - childrenSizeMSum
+        }elseif(mainAxisAlignment == MainAxisAlignment.SpaceAround){
+            positionM += ((sizeM - childrenSizeMSum) / children.length) / 2
+        }elseif(mainAxisAlignment == MainAxisAlignment.SpaceEvenly){
+            positionM += ((sizeM - childrenSizeMSum) / (children.length + 1))
+        }
+
+        var i = 0
+        foreach(children as child){
+            var childPositionM = positionM
+            var childPositionC = positionC
+            var childSizeM = 0f
+            var childSizeC = 0f
+            if(axis == Axis.Horizontal){
+                childSizeM = child.size.width
+                childSizeC = child.size.height
+            }else{
+                childSizeM = child.size.height
+                childSizeC = child.size.width
+            }
+            if(crossAxisAlignment == CrossAxisAlignment.Start){
+                childPositionC += 0f
+            }elseif(crossAxisAlignment == CrossAxisAlignment.Center){
+                childPositionC += (sizeC - childSizeC) / 2
+            }elseif(crossAxisAlignment == CrossAxisAlignment.End){
+                childPositionC += sizeC - childSizeC
+            }elseif(crossAxisAlignment == CrossAxisAlignment.Stretch){
+                childPositionC += 0f // CrossAxisAlignment.Stretch is handled in assignChildrenSizes() already
+            }
+            if(axis == Axis.Horizontal){
+                child.position = new Point(childPositionM, childPositionC)
+            }else{
+                child.position = new Point(childPositionC, childPositionM)
+            }
+            positionM += childSizeM
+            if(i < children.length - 1){
+                positionM += childGap
+            }
+            if(mainAxisAlignment == MainAxisAlignment.SpaceBetween){
+                positionM += (sizeM - childrenSizeMSum) / (children.length - 1)
+            }elseif(mainAxisAlignment == MainAxisAlignment.SpaceAround){
+                positionM += (sizeM - childrenSizeMSum) / (children.length + 0)
+            }elseif(mainAxisAlignment == MainAxisAlignment.SpaceEvenly){
+                positionM += (sizeM - childrenSizeMSum) / (children.length + 1)
+            }
+            i++
+        }
+    }
+
+    method draw(CanvasRegion canvas){
+        if(this.color != null){
+            canvas.fillRoundedRectangle(new Rectangle(new Point(0, 0), new Size(canvas.width, canvas.height)), cornerRadius, this.color?!, this.color?!.a != 255b)
+        }
+        drawChildrenDefault(canvas)
+    }
+
+}

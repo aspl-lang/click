@@ -1,0 +1,18 @@
+import graphics
+import math.geometry
+
+import click.layouting
+import click.drawing
+
+[public]
+class Spacer extends Widget {
+
+    [public]
+    method construct(Sizing sizing){
+        this.sizing = sizing
+    }
+
+    [public]
+    method draw(CanvasRegion canvas){}
+
+}

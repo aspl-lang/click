@@ -1,0 +1,95 @@
+import graphics
+import math.geometry
+
+import click.layouting
+import click.drawing
+import click.styles
+import click.events
+
+[public]
+class Switch extends Widget {
+
+    [readpublic]
+    property bool active
+    [readpublic]
+    property float width
+    [readpublic]
+    property Color activeTrackColor
+    [readpublic]
+    property Color inactiveTrackColor
+    [readpublic]
+    property Color activeThumbColor
+    [readpublic]
+    property Color inactiveThumbColor
+    [readpublic]
+    property Color borderColor
+    [readpublic]
+    property callback<bool>? onToggle
+
+    [public]
+    method construct(bool active, float width, Color? activeTrackColor = null, Color? inactiveTrackColor = null, Color? activeThumbColor = null, Color? inactiveThumbColor = null, Color? borderColor = null, callback<bool>? onToggle = null){
+        this.active = active
+        this.width = width
+        if(activeTrackColor != null){
+            this.activeTrackColor = activeTrackColor?!
+        }else{
+            this.activeTrackColor = DefaultStyle:accentColor
+        }
+        if(inactiveTrackColor != null){
+            this.inactiveTrackColor = inactiveTrackColor?!
+        }else{
+            this.inactiveTrackColor = DefaultStyle:secondaryForegroundColor
+        }
+        if(activeThumbColor != null){
+            this.activeThumbColor = activeThumbColor?!
+        }else{
+            this.activeThumbColor = DefaultStyle:tertiaryForegroundColor
+        }
+        if(inactiveThumbColor != null){
+            this.inactiveThumbColor = inactiveThumbColor?!
+        }else{
+            this.inactiveThumbColor = DefaultStyle:tertiaryForegroundColor
+        }
+        if(borderColor != null){
+            this.borderColor = borderColor?!
+        }else{
+            this.borderColor = DefaultStyle:borderColor
+        }
+        this.onToggle = onToggle
+
+        this.sizing = new Sizing(new FixedAxisSizing(width), new FixedAxisSizing(width * 0.4))
+
+        subscribeEventLocal(EventId.UnifiedClick, callback(UnifiedClickEvent event, EventContext context, Region region){
+            this.active = !this.active
+            if(onToggle != null){
+                onToggle?!.(this.active)
+            }
+        })
+    }
+
+    [public]
+    method draw(CanvasRegion canvas){
+        var backgroundColor = inactiveTrackColor
+        var foregroundColor = inactiveThumbColor
+        var borderColor = borderColor
+        if(active){
+            backgroundColor = activeTrackColor
+            foregroundColor = activeThumbColor
+        }
+        var cornerRadius = float(math.min(double(canvas.width), double(canvas.height)) / 2)
+        if(backgroundColor.a != 0b){
+            canvas.fillRoundedRectangle(new Rectangle(new Point(0, 0), new Size(canvas.width, canvas.height)), cornerRadius, backgroundColor, backgroundColor.a != 255b)
+        }
+        if(foregroundColor.a != 0b){
+            var t = 0.2
+            if(active){
+                t = 0.8
+            }
+            canvas.fillCircle(new Ellipse(new Point(canvas.width * t, canvas.height * 0.5), new Size(canvas.height * 0.4, canvas.height * 0.4)), foregroundColor, foregroundColor.a != 255b)
+        }
+        if(borderColor.a != 0b){
+            canvas.drawRoundedRectangle(new Rectangle(new Point(0, 0), new Size(canvas.width, canvas.height)), cornerRadius, borderColor, borderColor.a != 255b)
+        }
+    }
+
+}

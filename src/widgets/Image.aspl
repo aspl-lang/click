@@ -1,0 +1,29 @@
+import graphics
+import math.geometry
+
+import click.layouting
+import click.drawing
+
+[public]
+class Image extends Widget {
+
+    [readpublic]
+    property ImageFamily family
+
+    [public]
+    method construct(ImageFamily|RegularCanvas image){
+        if(image oftype RegularCanvas){
+            this.family = new ImageFamily({1.0 => RegularCanvas(image)})
+        }else{
+            this.family = ImageFamily(image)
+        }
+
+        this.sizing = new Sizing(new FixedAxisSizing(family.width), new FixedAxisSizing(family.height))
+    }
+
+    [public]
+    method draw(CanvasRegion canvas){
+        canvas.drawImageFamily(family, 0, 0)
+    }
+
+}

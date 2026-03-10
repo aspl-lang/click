@@ -1,0 +1,40 @@
+import graphics
+
+import click.widgets
+import click.layouting
+
+class Root extends CompositeWidget {
+
+    method row(MainAxisAlignment mainAxisAlignment, float gap = 0) returns Row{
+        return new Row(
+            children = list<Widget>[
+                new ColorBox(color=Color:fromRGB(148, 163, 120), sizing=Sizing:ff(70, 70)),
+                new ColorBox(color=Color:fromRGB(229, 186, 65), sizing=Sizing:ff(70, 70)),
+                new ColorBox(color=Color:fromRGB(209, 133, 92), sizing=Sizing:ff(70, 70))
+            ],
+            color = Color:fromRGB(87, 73, 100),
+            mainAxisAlignment = mainAxisAlignment,
+            crossAxisAlignment = CrossAxisAlignment.Center,
+            padding = Padding:all(15),
+            childGap = gap,
+            sizing = Sizing:lt(),
+            cornerRadius = 15
+        )
+    }
+
+    method build(BuildContext context) returns Widget{
+        return new Column(
+            children = list<Widget>[
+                row(MainAxisAlignment.SpaceBetween),
+                row(MainAxisAlignment.SpaceAround),
+                row(MainAxisAlignment.SpaceEvenly),
+                row(MainAxisAlignment.SpaceEvenly, 10)
+            ],
+            color = Color:fromRGB(45, 60, 89),
+            mainAxisAlignment = MainAxisAlignment.SpaceEvenly,
+            padding = Padding:all(15),
+            sizing = Sizing:ll()
+        )
+    }
+
+}

@@ -1,0 +1,12 @@
+[public]
+class FixedAxisSizing extends AxisSizing {
+
+    [readpublic]
+    property float value
+
+    [public]
+    method construct(float value){
+        this.value = value
+    }
+
+}

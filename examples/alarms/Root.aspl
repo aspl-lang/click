@@ -1,0 +1,100 @@
+import graphics
+
+import click.widgets
+import click.layouting
+
+class Root extends CompositeWidget {
+
+    property Font headerFont = Font:fromMemory($embed("fonts/Goldman/Goldman-Regular.ttf"))
+    property Font bodyFont = Font:fromMemory($embed("fonts/PublicSans/PublicSans-Regular.ttf"))
+
+    method build(BuildContext context) returns Widget{
+        return new Column(
+            children = list<Widget>[
+                new Row(
+                    children = list<Widget>[
+                        new Text(
+                            text = "Alarms",
+                            font = headerFont.withSize(FontSize:px(45)),
+                            color = Color:fromRGB(11, 20, 26)
+                        ),
+                        new Text(
+                            text = "+",
+                            font = headerFont.withSize(FontSize:px(50)),
+                            color = Color:fromRGB(11, 20, 26),
+                            horizontalFitting = HorizontalTextFitting.Tight,
+                            verticalFitting = VerticalTextFitting.Tight
+                        )
+                    ],
+                    padding = Padding:lrtb(20, 20, 0, 0),
+                    sizing = Sizing:lt(),
+                    mainAxisAlignment = MainAxisAlignment.SpaceBetween
+                )
+                new Column(
+                    children = [
+                        alarm("10:00", "Call Steve", true),
+                        alarm("16:30", "Book concert tickets", true),
+                        alarm("18:11", "", false),
+                        alarm("20:00", "", true),
+                        alarm("21:34", "Pizza is done", false)
+                        alarm("23:45", "", false)
+                    ],
+                    childGap = 15
+                )
+            ],
+            color = Color:fromRGB(248, 248, 248),
+            childGap = 15,
+            padding = Padding:lrtb(15, 15, 20, 0),
+            mainAxisAlignment = MainAxisAlignment.Start,
+            crossAxisAlignment = CrossAxisAlignment.Center,
+            sizing = Sizing:ll()
+        )
+    }
+
+    method alarm(string time, string note, bool active) returns Widget{
+        return new Row(
+            children=list<Widget>[
+                new Column(
+                    children = list<Widget>[
+                        new Text(
+                            text = "",
+                            font = bodyFont.withSize(FontSize:px(15)),
+                            color = Color:fromRGB(11, 20, 26)
+                        )
+                        new Text(
+                            text = time,
+                            font = bodyFont.withSize(FontSize:px(35)),
+                            color = Color:fromRGB(22, 22, 22)
+                        ),
+                        new Text(
+                            text = note,
+                            font = bodyFont.withSize(FontSize:px(15)),
+                            color = Color:fromRGB(11, 20, 26)
+                        )
+                    ],
+                    crossAxisAlignment = CrossAxisAlignment.Start
+                ),
+                new FlexBox(
+                    children = [],
+                    axis = Axis.Horizontal,
+                    sizing = Sizing:lf(height=0)
+                ),
+                new Switch(
+                    active = active,
+                    width = 100,
+                    activeTrackColor = Color:fromRGB(121, 101, 193),
+                    inactiveTrackColor = Color:fromRGB(14, 29, 37),
+                    activeThumbColor = Color:fromRGB(234, 239, 239),
+                    inactiveThumbColor = Color:fromRGB(234, 239, 239)
+                )
+            ],
+            cornerRadius = 15,
+            padding = Padding:all(10),
+            color = Color:fromRGB(228, 228, 228)
+            mainAxisAlignment = MainAxisAlignment.Center,
+            crossAxisAlignment = CrossAxisAlignment.Center,
+            sizing = Sizing:lt()
+        )
+    }
+
+}

@@ -1,0 +1,48 @@
+import graphics
+import math.geometry
+
+import click.layouting
+import click.drawing
+import click.events
+
+[public]
+class Offset extends Widget, WidgetContainer {
+
+    [readpublic]
+    property Widget child
+    [readpublic]
+    property float x
+    [readpublic]
+    property float y
+
+    [public]
+    method construct(Widget child, float x, float y){
+        this.child = child
+        this.x = x
+        this.y = y
+
+        this.sizing = new Sizing(new TightAxisSizing(), new TightAxisSizing())
+    }
+
+    [public]
+    method getChildren() returns list<Widget>{
+        return [child]
+    }
+
+    [public]
+    method assignChildrenSizes(Constraints constraints) returns Size{
+        child.layout(constraints)
+        return new Size(child.size.width + x, child.size.height + y)
+    }
+
+    [public]
+    method assignChildrenPositions(){
+        child.position = new Point(x, y)
+    }
+
+    [public]
+    method draw(CanvasRegion canvas){
+        drawChildrenDefault(canvas)
+    }
+
+}

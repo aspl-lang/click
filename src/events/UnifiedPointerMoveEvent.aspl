@@ -1,0 +1,16 @@
+[public]
+class UnifiedPointerMoveEvent extends UnifiedPointerEvent {
+
+    [readpublic]
+    property float deltaX
+    [readpublic]
+    property float deltaY
+
+    [public]
+    method construct(UnifiedPointer pointer, float deltaX, float deltaY){
+        parent(UnifiedPointerEvent).construct(pointer)
+        this.deltaX = deltaX
+        this.deltaY = deltaY
+    }
+
+}

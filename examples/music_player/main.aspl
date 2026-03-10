@@ -1,0 +1,4 @@
+import click
+
+var window = new AppWindow("[Click Example] Music Player", 500, 500, new Root())
+window.show()

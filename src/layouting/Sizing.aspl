@@ -1,0 +1,69 @@
+[public]
+class Sizing {
+
+    [readpublic]
+    property AxisSizing widthSizing
+    [readpublic]
+    property AxisSizing heightSizing
+
+    [public]
+    method construct(AxisSizing widthSizing, AxisSizing heightSizing){
+        this.widthSizing = widthSizing
+        this.heightSizing = heightSizing
+    }
+
+    [public]
+    [static]
+    method ff(float width, float height) returns Sizing{
+        return new Sizing(new FixedAxisSizing(width), new FixedAxisSizing(height))
+    }
+
+    [public]
+    [static]
+    method tt() returns Sizing{
+        return new Sizing(new TightAxisSizing(), new TightAxisSizing())
+    }
+
+    [public]
+    [static]
+    method ll() returns Sizing{
+        return new Sizing(new LooseAxisSizing(), new LooseAxisSizing())
+    }
+
+    [public]
+    [static]
+    method ft(float width) returns Sizing{
+        return new Sizing(new FixedAxisSizing(width), new TightAxisSizing())
+    }
+
+    [public]
+    [static]
+    method fl(float width) returns Sizing{
+        return new Sizing(new FixedAxisSizing(width), new LooseAxisSizing())
+    }
+
+    [public]
+    [static]
+    method tf(float height) returns Sizing{
+        return new Sizing(new TightAxisSizing(), new FixedAxisSizing(height))
+    }
+
+    [public]
+    [static]
+    method tl() returns Sizing{
+        return new Sizing(new TightAxisSizing(), new LooseAxisSizing())
+    }
+
+    [public]
+    [static]
+    method lf(float height) returns Sizing{
+        return new Sizing(new LooseAxisSizing(), new FixedAxisSizing(height))
+    }
+
+    [public]
+    [static]
+    method lt() returns Sizing{
+        return new Sizing(new LooseAxisSizing(), new TightAxisSizing())
+    }
+
+}

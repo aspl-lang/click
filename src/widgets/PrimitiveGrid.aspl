@@ -1,0 +1,100 @@
+import graphics
+
+import click.layouting
+import click.drawing
+
+[public]
+class PrimitiveGrid extends CompositeWidget {
+
+    [readpublic]
+    property list<Widget> children
+    [readpublic]
+    property int childrenPerRow
+    [readpublic]
+    property MainAxisAlignment rowMainAxisAlignment
+    [readpublic]
+    property CrossAxisAlignment rowCrossAxisAlignment
+    [readpublic]
+    property MainAxisAlignment columnMainAxisAlignment
+    [readpublic]
+    property CrossAxisAlignment columnCrossAxisAlignment
+    [readpublic]
+    property Padding? padding
+    [readpublic]
+    property float rowChildGap
+    [readpublic]
+    property float columnChildGap
+    [readpublic]
+    property Color? color
+    [readpublic]
+    property Sizing rowSizing
+    [readpublic]
+    property Sizing columnSizing
+
+    [public]
+    method construct(
+        list<Widget> children,
+        int childrenPerRow,
+        MainAxisAlignment rowMainAxisAlignment = MainAxisAlignment.Start,
+        CrossAxisAlignment rowCrossAxisAlignment = CrossAxisAlignment.Center,
+        MainAxisAlignment columnMainAxisAlignment = MainAxisAlignment.Start,
+        CrossAxisAlignment columnCrossAxisAlignment = CrossAxisAlignment.Center,
+        Padding? padding = null,
+        float rowChildGap = 0,
+        float columnChildGap = 0,
+        Color? color = null,
+        Sizing? rowSizing = null,
+        Sizing? columnSizing = null
+    ){
+        parent(CompositeWidget).construct()
+        this.children = children
+        this.childrenPerRow = childrenPerRow
+        this.rowMainAxisAlignment = rowMainAxisAlignment
+        this.rowCrossAxisAlignment = rowCrossAxisAlignment
+        this.columnMainAxisAlignment = columnMainAxisAlignment
+        this.columnCrossAxisAlignment = columnCrossAxisAlignment
+        this.padding = padding
+        this.rowChildGap = rowChildGap
+        this.columnChildGap = columnChildGap
+        this.color = color
+        this.rowSizing = rowSizing
+        this.columnSizing = columnSizing
+    }
+
+    method build(BuildContext context) returns Widget{
+        var list<Widget> rows = []
+        var list<Widget> currentRowChildren = []
+        foreach(children as child){
+            currentRowChildren.add(child)
+            if(currentRowChildren.length == childrenPerRow){
+                rows.add(new Row(
+                    children = currentRowChildren,
+                    mainAxisAlignment=rowMainAxisAlignment,
+                    crossAxisAlignment=rowCrossAxisAlignment,
+                    childGap = rowChildGap,
+                    sizing = rowSizing
+                ))
+                currentRowChildren = []
+            }
+        }
+        if(currentRowChildren.length != 0){
+            rows.add(new Row(
+                children = currentRowChildren,
+                mainAxisAlignment=rowMainAxisAlignment,
+                crossAxisAlignment=rowCrossAxisAlignment,
+                childGap = rowChildGap,
+                sizing = rowSizing
+            ))
+        }
+        return new Column(
+            children = rows,
+            mainAxisAlignment = columnMainAxisAlignment,
+            crossAxisAlignment = columnCrossAxisAlignment,
+            padding = padding,
+            childGap = columnChildGap,
+            color = color,
+            sizing = columnSizing
+        )
+    }
+
+}

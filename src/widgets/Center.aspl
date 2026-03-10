@@ -1,0 +1,40 @@
+import graphics
+import math.geometry
+
+import click.layouting
+import click.drawing
+
+[public]
+class Center extends Widget, WidgetContainer {
+
+    property Widget child
+
+    [public]
+    method construct(Widget child){
+        this.child = child
+
+        this.sizing = new Sizing(new LooseAxisSizing(), new LooseAxisSizing())
+    }
+
+    [public]
+    method getChildren() returns list<Widget>{
+        return [child]
+    }
+
+    [public]
+    method assignChildrenSizes(Constraints constraints) returns Size{
+        child.layout(constraints)
+        return child.size
+    }
+
+    [public]
+    method assignChildrenPositions(){
+        child.position = new Point((size.width - child.size.width) / 2, (size.height - child.size.height) / 2)
+    }
+
+    [public]
+    method draw(CanvasRegion canvas){
+        drawChildrenDefault(canvas)
+    }
+
+}

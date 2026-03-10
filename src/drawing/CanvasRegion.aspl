@@ -1,0 +1,134 @@
+import graphics
+import math.geometry
+
+[public]
+class CanvasRegion {
+
+	[readpublic]
+    property RegularCanvas handle
+    [readpublic]
+    property float x
+    [readpublic]
+    property float y
+    [readpublic]
+    property float width
+    [readpublic]
+    property float height
+    [readpublic]
+    property float v2pScale
+
+    [public]
+    method construct(RegularCanvas handle, float x, float y, float width, float height, float v2pScale){
+        this.handle = handle
+        this.x = x
+        this.y = y
+        this.width = width
+        this.height = height
+		this.v2pScale = v2pScale
+    }
+
+	[public]
+	method createSubRegion(float x, float y, float width, float height) returns CanvasRegion{
+		return new CanvasRegion(this.handle, this.x + x, this.y + y, width, height, this.v2pScale)
+	}
+
+    [public]
+    method containsAbsolutePointXY(float x, float y) returns bool{
+        return x >= this.x && y >= this.y && x < this.width + this.x && y < this.height + this.y
+    }
+
+	[public]
+	method getAbsoluteClippingArea() returns Rectangle{
+		panic("Unimplemented") // TODO
+	}
+
+	[public]
+	method setAbsoluteClippingArea(float x1, float y1, float x2, float y2){
+		// TODO
+	}
+
+	[public]
+	method getPixel(float x, float y) returns Color{
+		return handle.getPixel(round(transformX(x)), round(transformY(y)))
+	}
+
+	[public]
+	method setPixel(float x, float y, Color color, bool blend = true){
+		handle.setPixel(round(transformX(x)), round(transformY(y)), color, blend)
+	}
+
+	[public]
+	method drawImageUnscaled(RegularCanvas image, float x, float y, bool blend = true){
+        handle.drawImage(image, round(transformX(x)), round(transformY(y)), blend)
+	}
+
+	[public]
+	method drawImageFamily(ImageFamily family, float x, float y, bool blend = true){
+		var RegularCanvas? image = null
+		if(family.images.containsKey(v2pScale)){
+			image = family.images[v2pScale]
+		}else{
+			image = family.images[1.0].copy()
+			image?!.resizeScale(v2pScale)
+			family.images[v2pScale] = image?!
+		}
+        drawImageUnscaled(image?!, x, y, blend)
+	}
+
+    [public]
+	method drawLine(float x1, float y1, float x2, float y2, Color color, float thickness = 1, bool blend = true, bool antialias = true){
+        handle.drawLine(round(transformX(x1)), round(transformY(y1)), round(transformX(x2)), round(transformY(y2)), color, round(scale(thickness)), blend, antialias)
+    }
+
+	[public]
+	method drawRectangle(Rectangle rectangle, Color color, bool blend = true){
+		handle.drawRectangle(new Rectangle(new Point(transformX(rectangle.position.x), transformY(rectangle.position.y)), new Size(scale(rectangle.size.width), scale(rectangle.size.height))), color, blend)
+	}
+
+	[public]
+	method drawRoundedRectangle(Rectangle rectangle, float cornerRadius, Color color, bool blend = true){
+		handle.drawRoundedRectangle(new Rectangle(new Point(transformX(rectangle.position.x), transformY(rectangle.position.y)), new Size(scale(rectangle.size.width), scale(rectangle.size.height))), round(scale(cornerRadius)), color, blend)
+	}
+
+	[public]
+	method fillRectangle(Rectangle rectangle, Color color, bool blend = true){
+		handle.fillRectangle(new Rectangle(new Point(transformX(rectangle.position.x), transformY(rectangle.position.y)), new Size(scale(rectangle.size.width), scale(rectangle.size.height))), color, blend)
+	}
+
+	[public]
+	method fillRoundedRectangle(Rectangle rectangle, float cornerRadius, Color color, bool blend = true){
+		handle.fillRoundedRectangle(new Rectangle(new Point(transformX(rectangle.position.x), transformY(rectangle.position.y)), new Size(scale(rectangle.size.width), scale(rectangle.size.height))), round(scale(cornerRadius)), color, blend)
+	}
+
+	[public]
+	method drawCircle(Ellipse circle, Color color, bool blend = true){
+		handle.drawCircle(new Ellipse(new Point(transformX(circle.position.x), transformY(circle.position.y)), new Size(scale(circle.size.width), scale(circle.size.height))), color, blend)
+	}
+
+	[public]
+	method fillCircle(Ellipse circle, Color color, bool blend = true){
+		handle.fillCircle(new Ellipse(new Point(transformX(circle.position.x), transformY(circle.position.y)), new Size(scale(circle.size.width), scale(circle.size.height))), color, blend)
+	}
+
+	[public]
+	method drawText(string text, float x, float y, Font font, Color color, HorizontalAlignment horizontalAlignment = HorizontalAlignment.Left, VerticalAlignment verticalAlignment = VerticalAlignment.Bottom, HorizontalTextFitting horizontalFitting = HorizontalTextFitting.Full, VerticalTextFitting verticalFitting = VerticalTextFitting.Full, bool blend = true){
+        handle.drawText(text, round(transformX(x)), round(transformY(y)), font.withSize(FontSize:px(round(scale(float(font.size.pixels))))), color, horizontalAlignment, verticalAlignment, horizontalFitting, verticalFitting, blend)
+	}
+
+	method transformX(float x) returns float{
+		return float((x + this.x) * this.v2pScale)
+	}
+
+	method transformY(float y) returns float{
+		return float((y + this.y) * this.v2pScale)
+	}
+
+	method scale(float a) returns float{
+		return float(a * this.v2pScale)
+	}
+
+	method round(float x) returns int{
+    	return int(x + 0.5)
+	}
+
+}

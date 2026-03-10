@@ -1,0 +1,122 @@
+import graphics
+import math
+
+import click.widgets
+import click.layouting
+import click.state
+
+class Root extends CompositeWidget, Stateful {
+
+    // TODO: Actually give this calculator some functionality
+
+    property Font fontRegular = Font:fromMemory($embed("fonts/Roboto/Roboto-Regular.ttf"))
+    property Font fontBold = Font:fromMemory($embed("fonts/Roboto/Roboto-Bold.ttf"))
+
+    property State promptState = new State("(21×2)+0.05)")
+    property State resultState = new State(42.05d)
+
+    [public]
+    method construct(){
+        parent(CompositeWidget).construct()
+
+        subscribeState(promptState)
+        subscribeState(resultState)
+    }
+
+    method build(BuildContext context) returns Widget{
+        var prompt = string(promptState.get(this))
+        var result = double(resultState.get(this))
+        var baseFontSizePx = int(math.clamp(math.min(double(context.fullWidth), double(context.fullHeight / 2)) / 6, double(50), double(75)))
+
+        return new Column(
+            children = list<Widget>[
+                new Column(
+                    children = list<Widget>[
+                        new Text(
+                            text = prompt,
+                            font = fontRegular.withSize(FontSize:px(int(baseFontSizePx * 0.75))),
+                            color = Color:fromRGB(104, 109, 118)
+                        ),
+                        new Text(
+                            text = trimZeros(string(result)),
+                            font = fontBold.withSize(FontSize:px(int(baseFontSizePx * 1.25))),
+                            color = Color:fromRGB(238, 238, 238)
+                        ),
+                    ],
+                    childGap = 10,
+                    padding = Padding:all(6),
+                    crossAxisAlignment = CrossAxisAlignment.End,
+                    sizing = Sizing:lt()
+                ),
+                new PrimitiveGrid(
+                    children = [
+                        button("C", baseFontSizePx, color=Color:fromRGB(220, 95, 0)),
+                        button("(", baseFontSizePx),
+                        button(")", baseFontSizePx),
+                        button("÷", baseFontSizePx),
+                        button("7", baseFontSizePx),
+                        button("8", baseFontSizePx),
+                        button("9", baseFontSizePx),
+                        button("×", baseFontSizePx),
+                        button("4", baseFontSizePx),
+                        button("5", baseFontSizePx),
+                        button("6", baseFontSizePx),
+                        button("−", baseFontSizePx),
+                        button("1", baseFontSizePx),
+                        button("2", baseFontSizePx),
+                        button("3", baseFontSizePx),
+                        button("+", baseFontSizePx),
+                        button("0", baseFontSizePx),
+                        button(".", baseFontSizePx, horizontalFitting=HorizontalTextFitting.Full, verticalFitting=VerticalTextFitting.Full),
+                        button("%", baseFontSizePx),
+                        button("=", baseFontSizePx, color=Color:fromRGB(220, 95, 0)),
+                    ],
+                    childrenPerRow = 4,
+                    rowChildGap = 12,
+                    columnChildGap = 12,
+                    rowMainAxisAlignment = MainAxisAlignment.SpaceBetween,
+                    columnMainAxisAlignment = MainAxisAlignment.SpaceBetween,
+                    rowSizing = Sizing:ll(),
+                    columnSizing = Sizing:tt()
+                )
+            ],
+            color = Color:fromRGB(55, 58, 64),
+            childGap = 35,
+            padding = Padding:lrtb(6, 6, 75, 6),
+            mainAxisAlignment = MainAxisAlignment.Center,
+            crossAxisAlignment = CrossAxisAlignment.Center
+        )
+    }
+
+    method trimZeros(string str) returns string{
+        var i = str.length - 1
+        while(i > 0){
+            if(str[i] != "0"){
+                break
+            }
+            i--
+        }
+        return str.before(i + 1)
+    }
+
+    method button(string text, int baseFontSizePx, Color? color = null, HorizontalTextFitting horizontalFitting = HorizontalTextFitting.Tight, VerticalTextFitting verticalFitting = VerticalTextFitting.Tight) returns Widget{
+        if(color == null){
+            color = Color:fromRGB(104, 109, 118)
+        }
+        return new SingleChildBox(
+            child = new Text(
+                text = string(text),
+                font = fontRegular.withSize(FontSize:px(baseFontSizePx)),
+                color = Color:fromRGB(238, 238, 238),
+                horizontalFitting = horizontalFitting,
+                verticalFitting = verticalFitting
+            ),
+            cornerRadius = 10,
+            color = color?!,
+            mainAxisAlignment = MainAxisAlignment.Center,
+            crossAxisAlignment = CrossAxisAlignment.Center,
+            sizing = Sizing:ll()
+        )
+    }
+
+}

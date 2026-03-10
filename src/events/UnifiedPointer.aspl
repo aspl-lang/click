@@ -1,0 +1,30 @@
+import graphics
+import math.geometry
+
+[public]
+class UnifiedPointer {
+
+    [readpublic]
+    property long identifier
+    [readpublic]
+    property Point globalPosition
+    [readpublic]
+    property bool down
+    [readpublic]
+    property TouchToolType? touchToolType
+    [readpublic]
+    property MouseButton? mouseButton
+    [readpublic]
+    property float pressure
+
+    [public]
+    method construct(long identifier, Point globalPosition, bool down, TouchToolType? touchToolType, MouseButton? mouseButton, float pressure){
+        this.identifier = identifier
+        this.globalPosition = globalPosition
+        this.down = down
+        this.touchToolType = touchToolType
+        this.mouseButton = mouseButton
+        this.pressure = pressure
+    }
+
+}

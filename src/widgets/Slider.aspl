@@ -1,0 +1,82 @@
+import graphics
+import math.geometry
+
+import click.layouting
+import click.drawing
+import click.styles
+import click.events
+
+[public]
+class Slider extends Widget {
+
+    [readpublic]
+    property float value
+    [readpublic]
+    property float minimum
+    [readpublic]
+    property float maximum
+    [readpublic]
+    property float step
+    [readpublic]
+    property float width
+    [readpublic]
+    property float height
+    [readpublic]
+    property Color activeColor
+    [readpublic]
+    property Color inactiveColor
+    [readpublic]
+    property Color thumbColor
+    [readpublic]
+    property callback<float>? onMove
+
+    [public]
+    method construct(float value, float minimum, float maximum, float step, float width, float height, Color? activeColor = null, Color? inactiveColor = null, Color? thumbColor = null, callback<float>? onMove = null){
+        this.value = value
+        this.minimum = minimum
+        this.maximum = maximum
+        this.step = step
+        this.width = width
+        this.height = height
+        if(activeColor != null){
+            this.activeColor = activeColor?!
+        }else{
+            this.activeColor = DefaultStyle:primaryForegroundColor
+        }
+        if(inactiveColor != null){
+            this.inactiveColor = inactiveColor?!
+        }else{
+            this.inactiveColor = DefaultStyle:secondaryForegroundColor
+        }
+        if(thumbColor != null){
+            this.thumbColor = thumbColor?!
+        }else{
+            this.thumbColor = DefaultStyle:primaryForegroundColor
+        }
+        this.onMove = onMove
+
+        this.sizing = new Sizing(new FixedAxisSizing(width), new FixedAxisSizing(height))
+
+        subscribeEventLocal(EventId.UnifiedClick, callback(UnifiedClickEvent event, EventContext context, Region region){
+            if(onMove != null){
+                var newValue = minimum + ((event.pointer.globalPosition.x - region.x) / region.width) * (maximum - minimum)
+                onMove?!.(newValue)
+            }
+        })
+        subscribeEventLocal(EventId.UnifiedPointerMove, callback(UnifiedPointerMoveEvent event, EventContext context, Region region){
+            if(onMove != null){
+                var newValue = minimum + ((event.pointer.globalPosition.x - region.x) / region.width) * (maximum - minimum)
+                onMove?!.(newValue)
+            }
+        })
+    }
+
+    [public]
+    method draw(CanvasRegion canvas){
+        var cornerRadius = float(math.min(double(canvas.width), double(canvas.height / 2)) / 2)
+        canvas.fillRoundedRectangle(new Rectangle(new Point(0, canvas.height / 4), new Size(canvas.width * (value - minimum) / (maximum - minimum), canvas.height / 2)), cornerRadius, activeColor, activeColor.a != 255b)
+        canvas.fillRoundedRectangle(new Rectangle(new Point(canvas.width * (value - minimum) / (maximum - minimum), canvas.height / 4), new Size(canvas.width * (1 - (value - minimum) / (maximum - minimum)), canvas.height / 2)), cornerRadius, inactiveColor, inactiveColor.a != 255b)
+        canvas.fillCircle(new Ellipse(new Point(canvas.width * (value - minimum) / (maximum - minimum), canvas.height / 2), new Size(height / 2, height / 2)), thumbColor, activeColor.a != 255b)
+    }
+
+}

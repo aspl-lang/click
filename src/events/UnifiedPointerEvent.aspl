@@ -1,0 +1,13 @@
+[public]
+[abstract]
+class UnifiedPointerEvent extends Event {
+
+    [readpublic]
+    property UnifiedPointer pointer
+
+    [public]
+    method construct(UnifiedPointer pointer){
+        this.pointer = pointer
+    }
+
+}

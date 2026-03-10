@@ -1,0 +1,75 @@
+import graphics
+import math.geometry
+
+import click.layouting
+import click.drawing
+
+[public]
+class Stack extends Widget, WidgetContainer {
+
+    [readpublic]
+    property list<Widget> children
+    [readpublic]
+    property HorizontalAlignment horizontalAlignment
+    [readpublic]
+    property VerticalAlignment verticalAlignment
+
+    [public]
+    method construct(list<Widget> children, HorizontalAlignment horizontalAlignment = HorizontalAlignment.Left, VerticalAlignment verticalAlignment = VerticalAlignment.Top, Sizing? sizing = null){
+        this.children = children
+        this.horizontalAlignment = horizontalAlignment
+        this.verticalAlignment = verticalAlignment
+
+        if(sizing == null){
+            this.sizing = new Sizing(new TightAxisSizing(), new TightAxisSizing())
+        }else{
+            this.sizing = sizing
+        }
+    }
+
+    [public]
+    method getChildren() returns list<Widget>{
+        return children
+    }
+
+    [public]
+    method assignChildrenSizes(Constraints constraints) returns Size{
+        var float maxX = 0
+        var float maxY = 0
+        foreach(children as child){
+            child.layout(constraints)
+            if(child.size.width > maxX){
+                maxX = child.size.width
+            }
+            if(child.size.height > maxY){
+                maxY = child.size.height
+            }
+        }
+        return new Size(maxX, maxY)
+    }
+
+    [public]
+    method assignChildrenPositions(){
+        foreach(children as child){
+            var float x = 0
+            if(horizontalAlignment == HorizontalAlignment.Center){
+                x = size.width / 2 - child.size.width / 2
+            }elseif(horizontalAlignment == HorizontalAlignment.Right){
+                x = size.width - child.size.width
+            }
+            var float y = 0
+            if(verticalAlignment == VerticalAlignment.Center){
+                y = size.height / 2 - child.size.height / 2
+            }elseif(verticalAlignment == VerticalAlignment.Bottom){
+                y = size.height - child.size.height
+            }
+            child.position = new Point(x, y)
+        }
+    }
+
+    [public]
+    method draw(CanvasRegion canvas){
+        drawChildrenDefault(canvas)
+    }
+
+}

@@ -1,0 +1,19 @@
+[public]
+enum EventId {
+    MouseDown,
+    MouseMove,
+    MouseUp,
+    MouseWheel,
+    TouchDown,
+    TouchMove,
+    TouchUp,
+    TouchCancel,
+    UnifiedPointerDown,
+    UnifiedPointerMove,
+    UnifiedPointerUp,
+    UnifiedPointerCancel,
+    UnifiedClick,
+    KeyDown,
+    KeyUp,
+    KeyPress
+}

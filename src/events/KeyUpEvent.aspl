@@ -1,0 +1,11 @@
+import graphics
+
+[public]
+class KeyUpEvent extends KeyEvent {
+
+    [public]
+    method construct(KeyCode key){ // TODO: This override is only needed because of a compiler bug
+        parent(KeyEvent).construct(key)
+    }
+
+}

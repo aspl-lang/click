@@ -1,0 +1,92 @@
+import graphics
+
+// DefaultStyle is the default (dark) color scheme for various built-in widgets
+[public]
+[static]
+class DefaultStyle {
+
+    // TODO: Rework the styling/scheming system
+
+    // TODO: Remove the workaround utilizing reactive properties when static property default class instance values work reliably in the AIL backend
+
+    [static]
+    property Color? _primaryForegroundColor
+    [public]
+    [static]
+    property Color primaryForegroundColor{
+        get{
+            if(_primaryForegroundColor == null){
+                _primaryForegroundColor = Color:fromRGB(255, 255, 255)
+            }
+            return _primaryForegroundColor?!
+        }
+        set{
+            _primaryForegroundColor = value
+        }
+    }
+
+    [static]
+    property Color? _secondaryForegroundColor
+    [public]
+    [static]
+    property Color secondaryForegroundColor{
+        get{
+            if(_secondaryForegroundColor == null){
+                _secondaryForegroundColor = Color:fromRGB(128, 128, 128)
+            }
+            return _secondaryForegroundColor?!
+        }
+        set{
+            _secondaryForegroundColor = value
+        }
+    }
+
+    [static]
+    property Color? _tertiaryForegroundColor
+    [public]
+    [static]
+    property Color tertiaryForegroundColor{
+        get{
+            if(_tertiaryForegroundColor == null){
+                _tertiaryForegroundColor = Color:fromRGB(255, 255, 255)
+            }
+            return _tertiaryForegroundColor?!
+        }
+        set{
+            _tertiaryForegroundColor = value
+        }
+    }
+
+    [static]
+    property Color? _accentColor
+    [public]
+    [static]
+    property Color accentColor{
+        get{
+            if(_accentColor == null){
+                _accentColor = Color:fromRGB(128, 192, 128)
+            }
+            return _accentColor?!
+        }
+        set{
+            _accentColor = value
+        }
+    }
+
+    [static]
+    property Color? _borderColor
+    [public]
+    [static]
+    property Color borderColor{
+        get{
+            if(_borderColor == null){
+                _borderColor = Color:fromRGB(223, 223, 223)
+            }
+            return _borderColor?!
+        }
+        set{
+            _borderColor = value
+        }
+    }
+
+}

@@ -1,0 +1,39 @@
+import graphics
+
+import click.widgets
+import click.layouting
+import click.state
+import click.drawing
+import click.events
+
+class DrawingCanvas extends Widget, Stateful {
+
+    property State canvasState
+    property float scale
+
+    [public]
+    method construct(State canvasState, float scale){
+        this.canvasState = canvasState
+        subscribeState(canvasState)
+        this.scale = scale
+
+        this.sizing = new Sizing(new FixedAxisSizing(float(RegularCanvas(canvasState.get(this)).width / scale)), new FixedAxisSizing(float(RegularCanvas(canvasState.get(this)).height / scale)))
+
+        subscribeEventLocal(EventId.UnifiedPointerMove, callback(UnifiedPointerMoveEvent event, EventContext context, Region region){
+            var pointer = event.pointer
+            if(pointer.down){
+                canvasState.update(this, callback(any canvas){
+                    if(canvas != null){
+                        RegularCanvas(canvas).drawLine(x1=int((pointer.globalPosition.x - event.deltaX - region.x) * scale), y1=int((pointer.globalPosition.y - event.deltaY - region.y) * scale), x2=int((pointer.globalPosition.x - region.x) * scale), y2=int((pointer.globalPosition.y - region.y) * scale), color=Color:fromRGB(0, 0, 0), thickness=int(3 * scale))
+                    }
+                })
+            }
+        })
+    }
+
+    [public]
+    method draw(CanvasRegion canvas){
+        canvas.drawImageUnscaled(RegularCanvas(canvasState.get(this)), 0, 0)
+    }
+
+}

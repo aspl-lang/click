@@ -1,0 +1,73 @@
+import graphics
+import math.geometry
+
+import click.layouting
+import click.drawing
+import click.styles
+import click.events
+
+[public]
+class IconButton extends Widget {
+
+    [readpublic]
+    property ImageFamily family
+    [readpublic]
+    property Padding? padding
+    [readpublic]
+    property Color backgroundColor
+    [readpublic]
+    property Color borderColor
+    [readpublic]
+    property float cornerRadius
+    [readpublic]
+    property callback? onClick
+
+    [public]
+    method construct(ImageFamily|RegularCanvas icon, Padding? padding = null, Color? backgroundColor = null, Color? borderColor = null, float cornerRadius = 0, callback? onClick = null){
+        if(icon oftype RegularCanvas){
+            this.family = new ImageFamily({1.0 => RegularCanvas(icon)})
+        }else{
+            this.family = ImageFamily(icon)
+        }
+        this.padding = padding
+        if(backgroundColor != null){
+            this.backgroundColor = backgroundColor
+        }else{
+            this.backgroundColor = DefaultStyle:secondaryForegroundColor
+        }
+        if(borderColor != null){
+            this.borderColor = borderColor
+        }else{
+            this.borderColor = DefaultStyle:borderColor
+        }
+        this.cornerRadius = cornerRadius
+
+        var horizontalPadding = 0f
+        var verticalPadding = 0f
+        if(padding != null){
+            horizontalPadding = padding?!.left + padding?!.right
+            verticalPadding = padding?!.top + padding?!.bottom
+        }
+        this.sizing = new Sizing(new FixedAxisSizing(family.width + horizontalPadding), new FixedAxisSizing(family.height + verticalPadding))
+
+        subscribeEventLocal(EventId.UnifiedClick, callback(UnifiedClickEvent event, EventContext context, Region region){
+            if(onClick != null){
+                onClick?!.()
+            }
+        })
+    }
+
+    [public]
+    method draw(CanvasRegion canvas){
+        canvas.fillRoundedRectangle(new Rectangle(new Point(0, 0), new Size(canvas.width, canvas.height)), cornerRadius, backgroundColor)
+        canvas.drawRoundedRectangle(new Rectangle(new Point(0, 0), new Size(canvas.width, canvas.height)), cornerRadius, borderColor)
+        var horizontalOffset = 0f
+        var verticalOffset = 0f
+        if(padding != null){
+            horizontalOffset = padding?!.left
+            verticalOffset = padding?!.top
+        }
+        canvas.drawImageFamily(family, horizontalOffset, verticalOffset)
+    }
+
+}
