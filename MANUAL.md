@@ -5,7 +5,7 @@ Welcome to the Click manual! This document will provide a starting point for eve
 <table>
 <tr><td width=50% valign=top>
 
-* [What is Click for?](#what-is-click-for)
+* [What's the point of Click? What even is a GUI framework?](#whats-the-point-of-click-what-even-is-a-gui-framework)
 * [Core Principles](#core-principles)
     * [Widgets](#widgets)
     * [Optimized Immediate-Mode](#optimized-immediate-mode)
@@ -27,15 +27,25 @@ Welcome to the Click manual! This document will provide a starting point for eve
 </td></tr>
 </table>
 
-## What is Click for?
-One thing about software development and computer science is that people who aren't very familiar with it often don't even realize the need for lots of software. This includes GUI frameworks. So what really is a GUI framework? Do you need one?
+## What's the point of Click? What even is a GUI framework?
+One thing about software development - and (computer) science in general - is that people who aren't particularly familiar with the field often don't even realize the need for lots of software. This includes GUI frameworks. So what exactly is a GUI framework? Do you need one?
 
-Generally speaking, you will need a GUI framework whenever you want to write anything that's like an app or a website, that is, a piece of software that uses a graphical interface to display information and interact with users.
+Generally speaking, you'll want to use a GUI ("graphical user interface") framework whenever you're building software that uses a graphical interface to display information and interact with users - such as a smartphone app, an interactive website[^1], or a video game's settings menu.
 
 Now, you might wonder what you actually require the framework for. Imagine the following:
-You are building an app, let's say for a railway company. The app should contain text fields for typing in the departure and arrival stations, buttons for navigating and submitting requests, switches for toggling options, and more. These components are known as widgets; one major job of GUI frameworks is to implement a base logic for all widgets and provide some common widgets (buttons, switches, etc.) so that you do not have to rewrite them from scratch. You also want your app to work on different aspect ratios and be easily extendable, so you try to avoid computing as many absolute positions and sizes as possible while still maintaining a pixel-perfect and accessible layout. This is also what a GUI framework helps you with: it provides widgets like `Row`s or `Column`s (and more general `FlexBox`es) so that you can simply declare all widgets that need to be on the screen, and the framework will automatically position and size them properly. Additionally, high-level frameworks like Click provide powerful APIs to handle different types of user input (mouse, touch, stylus) in a single codebase and help you with other parts of your application logic like state management.
+You are building an app, let's say for a railway company.
 
-Now, this was probably a little abstract and, of course, significantly simplified, but learning UI and app development is really not that complicated. Just read some more chapters of this manual, look at the showcase projects under the `examples` folder, and you will quickly develop an intuition of what building GUIs in Click is all about.
+The app should contain text fields for typing in the departure and arrival stations, buttons for navigating and submitting requests, switches for toggling options, and more. These components are known as widgets (at least in Click); one major job of GUI frameworks is to implement a base logic for all widgets and provide some common widgets (buttons, switches, etc.) so that you do not have to rewrite them from scratch. After all, your computer only knows about pixels and raw mouse/touch events and does not understand the concept of a text box or a radio button by itself.[^2]
+
+You also want your app to work on different aspect ratios and be easily extendable, so you try to avoid specifying as many absolute positions and sizes as possible while still maintaining a pixel-perfect and accessible layout. This is also what a GUI framework helps you with: it provides widgets like `Row`s, `Column`s, or `Center`s so you can simply declare all visible widgets and their arrangement on the screen, and the framework will automatically position and size most of them properly.
+
+Additionally, high-level frameworks like Click provide powerful APIs to handle different types of user input (mouse, touch, stylus) in a single codebase and help you with other parts of your application logic like state management or establishing consistent color schemes.
+
+Now, this was probably a lot of (new) information,  some of which was quite abstract (and significantly simplified), but learning UI and app development really is not that complicated. Just read some more chapters of this manual and look at the showcase projects under the `examples` folder, and you will quickly develop an intuition of what building GUIs in Click is all about.
+
+[^1]: Note that HTML already kind of defines its own GUI framework, so you don't necessarily have to use another one for web development, although basically all bigger web projects use some web GUI framework like React or Angular.
+
+[^2]: There are obviously different levels to what a computer "knows". While on the lowest level the transistors only know about Boolean logic, most operating systems do indeed have a concept of widgets like text boxes or buttons themselves - they basically include a default GUI framework for that operating system in their own code. There are different types of GUI frameworks, including _native_ ones that make use of these OS-provided widgets and _non-native_ frameworks like Click that implement all widgets again from scratch. Both approaches have advantages and downsides.
 
 ## Core Principles
 > [!NOTE]  
