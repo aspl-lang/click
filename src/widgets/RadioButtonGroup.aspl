@@ -1,0 +1,107 @@
+import graphics
+import math.geometry
+
+import click.layouting
+import click.drawing
+import click.styles
+import click.events
+
+[public]
+class RadioButtonGroup extends Widget {
+
+    [readpublic]
+    property int selected
+    [readpublic]
+    property list<string> options
+    [readpublic]
+    property Font font
+    [readpublic]
+    property float horizontalGap
+    [readpublic]
+    property float lineSpacing
+    [readpublic]
+    property Color activeColor
+    [readpublic]
+    property Color inactiveColor
+    [readpublic]
+    property Color textColor
+    [readpublic]
+    property callback<int>? onSelect
+
+    [public]
+    method construct(int selected, list<string> options, Font font, float horizontalGap = 0.85, float lineSpacing = 1.25, Color? activeColor = null, Color? inactiveColor = null, Color? textColor = null, callback<int>? onSelect = null){
+        this.selected = selected
+        this.options = options
+        this.font = font
+        this.horizontalGap = horizontalGap
+        this.lineSpacing = lineSpacing
+        if(activeColor != null){
+            this.activeColor = activeColor?!
+        }else{
+            this.activeColor = DefaultStyle:accentColor
+        }
+        if(inactiveColor != null){
+            this.inactiveColor = inactiveColor?!
+        }else{
+            this.inactiveColor = DefaultStyle:secondaryForegroundColor
+        }
+        if(textColor != null){
+            this.textColor = textColor?!
+        }else{
+            this.textColor = DefaultStyle:primaryForegroundColor
+        }
+        this.onSelect = onSelect
+
+        var float maxWidth = 0
+        var float height = 0
+        var i = 0
+        foreach(options as option){
+            var size = graphics.measure_text_size(option, font)
+            var width = size.width + font.size.pixels * horizontalGap
+            if(width > maxWidth){
+                maxWidth = width
+            }
+            height += size.height
+            if(i < options.length - 1){
+                height += size.height * (lineSpacing - 1)
+            }
+            i++
+        }
+        this.sizing = new Sizing(new FixedAxisSizing(maxWidth), new FixedAxisSizing(height))
+
+        subscribeEventLocal(EventId.UnifiedClick, callback(UnifiedClickEvent event, EventContext context, Region region){
+            if(onSelect != null){
+                var localY = event.pointer.globalPosition.y - region.y
+                onSelect?!.(int(options.length * (localY / region.height)))
+            }
+        })
+    }
+
+    [public]
+    method draw(CanvasRegion canvas){
+        // TODO: Optimize this drawing logic
+        var diameter = font.size.pixels * 0.5 * canvas.v2pScale
+        var unselectedImage = new RegularCanvas(int(diameter), int(diameter))
+        unselectedImage.fillCircle(new Ellipse(new Point(diameter * 0.5, diameter * 0.5), new Size(diameter * 0.5, diameter * 0.5)), inactiveColor)
+        unselectedImage.fillCircle(new Ellipse(new Point(diameter * 0.5, diameter * 0.5), new Size(diameter * 0.4, diameter * 0.4)), Color:fromARGB(0, 0, 0, 0), false)
+        var selectedImage = new RegularCanvas(int(diameter), int(diameter))
+        selectedImage.fillCircle(new Ellipse(new Point(diameter * 0.5, diameter * 0.5), new Size(diameter * 0.5, diameter * 0.5)), activeColor)
+        selectedImage.fillCircle(new Ellipse(new Point(diameter * 0.5, diameter * 0.5), new Size(diameter * 0.4, diameter * 0.4)), Color:fromARGB(0, 0, 0, 0), false)
+        selectedImage.fillCircle(new Ellipse(new Point(diameter * 0.5, diameter * 0.5), new Size(diameter * 0.275, diameter * 0.275)), activeColor)
+        var float y = 0
+        var i = 0
+        foreach(options as option){
+            var size = graphics.measure_text_size(option, font)
+            var image = unselectedImage
+            if(i == selected){
+                image = selectedImage
+            }
+            canvas.drawImageUnscaled(image, 0, y + size.height * 0.5 - (image.height / canvas.v2pScale) * 0.5, true)
+            var x = font.size.pixels * horizontalGap
+            canvas.drawText(option, x, y, font, textColor, horizontalAlignment = HorizontalAlignment.Left, verticalAlignment = VerticalAlignment.Top)
+            y += size.height * lineSpacing
+            i++
+        }
+    }
+
+}
