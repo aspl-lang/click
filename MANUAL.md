@@ -48,8 +48,8 @@ Now, this was probably a lot of (new) information,  some of which was quite abst
 [^2]: There are obviously different levels to what a computer "knows". While on the lowest level the transistors only know about Boolean logic, most operating systems do indeed have a concept of widgets like text boxes or buttons themselves - they basically include a default GUI framework for that operating system in their own code. There are different types of GUI frameworks, including _native_ ones that make use of these OS-provided widgets and _non-native_ frameworks like Click that implement all widgets again from scratch. Both approaches have advantages and downsides.
 
 ## Core Principles
-> [!NOTE]  
-> This chapter is fairly technical and might require some advanced coding/UI development knowledge to truly understand. It certainly won't hurt to read it though, if you're interested.
+> [!NOTE]
+> This chapter is fairly technical and might require some advanced coding/UI development knowledge to truly understand. Consider skipping it if you're just getting started and want to jump right into developing your first app. It certainly won't hurt to read it though, if you're interested.
 
 There are many different approaches to designing and building GUI frameworks; this section will outline the approach taken by Click and why this approach is suitable for crafting modern, portable user-interfaces in ASPL.
 
@@ -123,10 +123,10 @@ aspl compile path/to/directory
 ```
 And that's it! You should now have an executable that opens up an app with some "Hello!" text in the center.
 
-> [!TIP]  
-> In practice, you will want to build most apps using the ASPL C backend (`-backend c`) (as it is much faster than the AIL backend) and using the D3D11 graphics API on Windows (`-d3d11`).
+> [!TIP]
+> In practice, you will want to build most apps using the ASPL C backend (`-backend c`) (as it is much faster than the AIL backend) and, if you're targeting Windows, using the D3D11 graphics API (`-d3d11`). Also, don't forget to enable production mode (`-prod`) for release builds, and, again only applicable to Windows, consider compiling your app as a "GUI subsystem" executable (`-gui`) (that is, one that does not spawn a console window on startup).
 
-> [!TIP]  
+> [!TIP]
 > Make sure to also check out the [showcase examples](examples) for several real-world UI cases. They naturally incorporate all concepts explained in this manual into high-quality, minimalistic apps.
 
 ## FlexBoxes, Rows, and Columns
