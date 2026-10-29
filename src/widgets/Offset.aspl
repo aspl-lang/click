@@ -30,14 +30,14 @@ class Offset extends Widget, WidgetContainer {
     }
 
     [public]
-    method assignChildrenSizes(Constraints constraints) returns Size{
-        child.layout(constraints)
+    method performChildrenSizing(Constraints constraints) returns Size{
+        child.chooseSizeAndPerformChildrenSizing(constraints)
         return new Size(child.size.width + x, child.size.height + y)
     }
 
     [public]
-    method assignChildrenPositions(){
-        child.position = new Point(x, y)
+    method performChildrenPositioning(){
+        child.assignPositionAndPerformChildrenPositioning(new Point(x, y))
     }
 
     [public]

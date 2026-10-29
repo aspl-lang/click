@@ -13,11 +13,11 @@ class WidgetContainer {
 
     [public] // TODO
     [abstract]
-    method assignChildrenSizes(Constraints constraints) returns Size
+    method performChildrenSizing(Constraints constraints) returns Size
 
     [public] // TODO
     [abstract]
-    method assignChildrenPositions()
+    method performChildrenPositioning()
 
     method drawChildrenDefault(CanvasRegion canvas){
         foreach(getChildren() as child){

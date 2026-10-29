@@ -22,14 +22,14 @@ class Center extends Widget, WidgetContainer {
     }
 
     [public]
-    method assignChildrenSizes(Constraints constraints) returns Size{
-        child.layout(constraints)
+    method performChildrenSizing(Constraints constraints) returns Size{
+        child.chooseSizeAndPerformChildrenSizing(constraints)
         return child.size
     }
 
     [public]
-    method assignChildrenPositions(){
-        child.position = new Point((size.width - child.size.width) / 2, (size.height - child.size.height) / 2)
+    method performChildrenPositioning(){
+        child.assignPositionAndPerformChildrenPositioning(new Point((this.size.width - child.size.width) / 2, (this.size.height - child.size.height) / 2))
     }
 
     [public]

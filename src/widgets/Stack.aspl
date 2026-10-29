@@ -33,11 +33,11 @@ class Stack extends Widget, WidgetContainer {
     }
 
     [public]
-    method assignChildrenSizes(Constraints constraints) returns Size{
+    method performChildrenSizing(Constraints constraints) returns Size{
         var float maxX = 0
         var float maxY = 0
         foreach(children as child){
-            child.layout(constraints)
+            child.chooseSizeAndPerformChildrenSizing(constraints)
             if(child.size.width > maxX){
                 maxX = child.size.width
             }
@@ -49,7 +49,7 @@ class Stack extends Widget, WidgetContainer {
     }
 
     [public]
-    method assignChildrenPositions(){
+    method performChildrenPositioning(){
         foreach(children as child){
             var float x = 0
             if(horizontalAlignment == HorizontalAlignment.Center){
@@ -63,7 +63,7 @@ class Stack extends Widget, WidgetContainer {
             }elseif(verticalAlignment == VerticalAlignment.Bottom){
                 y = size.height - child.size.height
             }
-            child.position = new Point(x, y)
+            child.assignPositionAndPerformChildrenPositioning(new Point(x, y))
         }
     }
 

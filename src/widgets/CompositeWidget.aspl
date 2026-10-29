@@ -30,14 +30,14 @@ class CompositeWidget extends Widget, WidgetContainer {
     }
 
     [public]
-    method assignChildrenSizes(Constraints constraints) returns Size{
-        substitution?!.layout(constraints)
+    method performChildrenSizing(Constraints constraints) returns Size{
+        substitution?!.chooseSizeAndPerformChildrenSizing(constraints)
         return substitution?!.size
     }
 
     [public]
-    method assignChildrenPositions(){
-        substitution?!.position = new Point(0, 0)
+    method performChildrenPositioning(){
+        substitution?!.assignPositionAndPerformChildrenPositioning(new Point(0, 0))
     }
 
     [public]

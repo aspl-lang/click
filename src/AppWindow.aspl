@@ -15,8 +15,8 @@ class AppWindow extends Window {
     method construct(string title, int width, int height, CompositeWidget root){
         parent(Window).construct(title, width, height)
         this.setRetainMode(true)
-        root._setPosition(new Point(0, 0))
         var fullFrameRegion = new Region(0, 0, float(width), float(height))
+        var cachedRootPosition = new Point(0, 0)
         var firstFrame = true
         var forceFullRebuild = true
         this.onPaint = callback(Canvas canvas){
@@ -31,7 +31,8 @@ class AppWindow extends Window {
             }else{
                 root.rebuildRecursiveOptimized(context)
             }
-            root.layout(new Constraints(canvas.width / scale, canvas.height / scale, canvas.width / scale, canvas.height / scale))
+            root.chooseSizeAndPerformChildrenSizing(new Constraints(canvas.width / scale, canvas.height / scale, canvas.width / scale, canvas.height / scale))
+            root.assignPositionAndPerformChildrenPositioning(cachedRootPosition)
             var canvasRegion = new CanvasRegion(RegularCanvas(canvas), 0, 0, canvas.width / scale, canvas.height / scale, scale) // TODO: Ensure that `canvas` is actually a RegularCanvas (this, however, is currently always the case)
             if(forceFullRebuild){
                 root.draw(canvasRegion)

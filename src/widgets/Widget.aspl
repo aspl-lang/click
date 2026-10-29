@@ -26,14 +26,10 @@ class Widget {
         this.sizing = sizing
     }
 
-    // _setPosition is for internal use only
+    // chooseSizeAndPerformChildrenSizing computes and assigns the size of this widget and the sizes of all of its children (if any) recursively, all with respect to the given constraints
+    // TODO: Find a shorter name for this method
     [public]
-    method _setPosition(Point position){
-        this.position = position
-    }
-
-    [public]
-    method layout(Constraints constraints){
+    method chooseSizeAndPerformChildrenSizing(Constraints constraints){
         $if debug{
             if(sizing == null){
                 panic("Widget sizing not initialized")
@@ -80,7 +76,7 @@ class Widget {
             if(maxHeight > constraints.maxHeight){
                 maxHeight = constraints.maxHeight
             }
-            childrenSize = WidgetContainer(any(this)).assignChildrenSizes(new Constraints(minWidth, minHeight, maxWidth, maxHeight)) // TODO: Remove this any() cast
+            childrenSize = WidgetContainer(any(this)).performChildrenSizing(new Constraints(minWidth, minHeight, maxWidth, maxHeight)) // TODO: Remove this any() cast
         }
 
         var float width = 0
@@ -108,9 +104,16 @@ class Widget {
         }
 
         this.size = new Size(width, height)
+    }
+
+    // assignPositionAndPerformChildrenPositioning assigns a given position to this widget and computes and assigns the positions of all of its children (if any) recursively
+    // TODO: Find a shorter name for this method
+    [public]
+    method assignPositionAndPerformChildrenPositioning(Point position){
+        this.position = position
 
         if(this oftype WidgetContainer){
-            WidgetContainer(any(this)).assignChildrenPositions()
+            WidgetContainer(any(this)).performChildrenPositioning()
         }
     }
 

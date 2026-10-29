@@ -58,7 +58,7 @@ class FlexBox extends Widget, WidgetContainer {
     }
 
     [public]
-    method assignChildrenSizes(Constraints constraints) returns Size{
+    method performChildrenSizing(Constraints constraints) returns Size{
         var float horizontalReduction = 0
         var float verticalReduction = 0
         if(axis == Axis.Horizontal){
@@ -95,7 +95,7 @@ class FlexBox extends Widget, WidgetContainer {
         if(axis == Axis.Horizontal){
             foreach(children as child){
                 if(child.sizing.widthSizing oftype FixedAxisSizing){
-                    child.layout(new Constraints(minWidth, minHeight, constraints.maxWidth, constraints.maxHeight))
+                    child.chooseSizeAndPerformChildrenSizing(new Constraints(minWidth, minHeight, constraints.maxWidth, constraints.maxHeight))
                     totalWidth += child.size.width
                     if(child.size.height > totalHeight){
                         totalHeight = child.size.height
@@ -104,7 +104,7 @@ class FlexBox extends Widget, WidgetContainer {
             }
             foreach(children as child){
                 if(child.sizing.widthSizing oftype TightAxisSizing){
-                    child.layout(new Constraints(minWidth, minHeight, float(constraints.maxWidth - totalWidth), float(constraints.maxHeight)))
+                    child.chooseSizeAndPerformChildrenSizing(new Constraints(minWidth, minHeight, float(constraints.maxWidth - totalWidth), float(constraints.maxHeight)))
                     totalWidth += child.size.width
                     if(child.size.height > totalHeight){
                         totalHeight = child.size.height
@@ -120,7 +120,7 @@ class FlexBox extends Widget, WidgetContainer {
             }
             foreach(children as child){
                 if(child.sizing.widthSizing oftype LooseAxisSizing){
-                    child.layout(new Constraints(minWidth, minHeight, float(remainingWidthForLoose / looseCount), float(constraints.maxHeight)))
+                    child.chooseSizeAndPerformChildrenSizing(new Constraints(minWidth, minHeight, float(remainingWidthForLoose / looseCount), float(constraints.maxHeight)))
                     totalWidth += child.size.width
                     if(child.size.height > totalHeight){
                         totalHeight = child.size.height
@@ -130,7 +130,7 @@ class FlexBox extends Widget, WidgetContainer {
         }else{
             foreach(children as child){
                 if(child.sizing.heightSizing oftype FixedAxisSizing){
-                    child.layout(new Constraints(minWidth, minHeight, constraints.maxWidth, constraints.maxHeight))
+                    child.chooseSizeAndPerformChildrenSizing(new Constraints(minWidth, minHeight, constraints.maxWidth, constraints.maxHeight))
                     totalHeight += child.size.height
                     if(child.size.width > totalWidth){
                         totalWidth = child.size.width
@@ -139,7 +139,7 @@ class FlexBox extends Widget, WidgetContainer {
             }
             foreach(children as child){
                 if(child.sizing.heightSizing oftype TightAxisSizing){
-                    child.layout(new Constraints(minWidth, minHeight, float(constraints.maxWidth), float(constraints.maxHeight - totalHeight)))
+                    child.chooseSizeAndPerformChildrenSizing(new Constraints(minWidth, minHeight, float(constraints.maxWidth), float(constraints.maxHeight - totalHeight)))
                     totalHeight += child.size.height
                     if(child.size.width > totalWidth){
                         totalWidth = child.size.width
@@ -155,7 +155,7 @@ class FlexBox extends Widget, WidgetContainer {
             }
             foreach(children as child){
                 if(child.sizing.heightSizing oftype LooseAxisSizing){
-                    child.layout(new Constraints(minWidth, minHeight, float(constraints.maxWidth), float(remainingHeightForLoose / looseCount)))
+                    child.chooseSizeAndPerformChildrenSizing(new Constraints(minWidth, minHeight, float(constraints.maxWidth), float(remainingHeightForLoose / looseCount)))
                     totalHeight += child.size.height
                     if(child.size.width > totalWidth){
                         totalWidth = child.size.width
@@ -168,7 +168,7 @@ class FlexBox extends Widget, WidgetContainer {
     }
 
     [public]
-    method assignChildrenPositions(){
+    method performChildrenPositioning(){
         var float horizontalReduction = 0
         var float verticalReduction = 0
         if(axis == Axis.Horizontal){
@@ -243,12 +243,12 @@ class FlexBox extends Widget, WidgetContainer {
             }elseif(crossAxisAlignment == CrossAxisAlignment.End){
                 childPositionC += sizeC - childSizeC
             }elseif(crossAxisAlignment == CrossAxisAlignment.Stretch){
-                childPositionC += 0f // CrossAxisAlignment.Stretch is handled in assignChildrenSizes() already
+                childPositionC += 0f // CrossAxisAlignment.Stretch is handled in performChildrenSizing() already
             }
             if(axis == Axis.Horizontal){
-                child.position = new Point(childPositionM, childPositionC)
+                child.assignPositionAndPerformChildrenPositioning(new Point(childPositionM, childPositionC))
             }else{
-                child.position = new Point(childPositionC, childPositionM)
+                child.assignPositionAndPerformChildrenPositioning(new Point(childPositionC, childPositionM))
             }
             positionM += childSizeM
             if(i < children.length - 1){
